@@ -34,8 +34,20 @@ public class MainActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
 
-        viewPager2 = findViewById(R.id.viewPager);
+        List<SlideItem> sliderItem = new ArrayList<>();
+        sliderItem.add((new SlideItem(R.drawable.banner1)));
+        sliderItem.add((new SlideItem(R.drawable.banner2)));
+        sliderItem.add((new SlideItem(R.drawable.banner3)));
 
+        addControls();
+        sliderInitialization();
+    }
+
+    private void addControls() {
+        viewPager2 = findViewById(R.id.viewPager);
+    }
+
+    private void sliderInitialization() {
         List<SlideItem> sliderItem = new ArrayList<>();
         sliderItem.add((new SlideItem(R.drawable.banner1)));
         sliderItem.add((new SlideItem(R.drawable.banner2)));
