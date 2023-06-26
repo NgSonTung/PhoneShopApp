@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
@@ -27,6 +28,11 @@ public class MainActivity extends AppCompatActivity {
     //implementing auto slide facility
     private Handler slideHandle = new Handler();
 
+    //Product Slider
+    ArrayList<ProductRVItemClass> data = new ArrayList<>();
+    ProductRVAdapter productRVAdapter;
+    RecyclerView productRV;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +44,15 @@ public class MainActivity extends AppCompatActivity {
         sliderItem.add((new SlideItem(R.drawable.banner1)));
         sliderItem.add((new SlideItem(R.drawable.banner2)));
         sliderItem.add((new SlideItem(R.drawable.banner3)));
+
+        //Product Slider
+        productRV = binding.productRecycleView;
+        productRVInit();
+        productRVAdapter = new ProductRVAdapter(data);
+        productRVAdapter.notifyDataSetChanged();
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL,false);
+        productRV.setAdapter(productRVAdapter);
+        productRV.setLayoutManager(linearLayoutManager);
 
         addControls();
         sliderInitialization();
@@ -89,4 +104,13 @@ public class MainActivity extends AppCompatActivity {
             viewPager2.setCurrentItem(viewPager2.getCurrentItem() + 1);
         }
     };
+
+    private void productRVInit (){
+        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM Kingston Fury Beast 16GB Bus 3200 MHz","929.000 ","0"));
+        data.add( new ProductRVItemClass(R.drawable.productimg,"Tai Nghe Gaming ADATA XPG EMIX H20","929.000 ","0"));
+        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM PNY XLR8 DDR4 8GB 3200MHz LONGDIMM (MD8GD4320016XR)","929.000 ","0"));
+        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM Kingston Fury Beast 16GB Bus 3200 MHz","929.000 ","0"));
+        data.add( new ProductRVItemClass(R.drawable.productimg,"Tai Nghe Gaming ADATA XPG EMIX H20","929.000 ","0"));
+        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM PNY XLR8 DDR4 8GB 3200MHz LONGDIMM (MD8GD4320016XR)","929.000 ","0"));
+    }
 }
