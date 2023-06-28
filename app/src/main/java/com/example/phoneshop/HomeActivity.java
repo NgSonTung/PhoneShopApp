@@ -30,8 +30,11 @@ public class HomeActivity extends AppCompatActivity {
 
     //Product Slider
     ArrayList<ProductRVItemClass> data = new ArrayList<>();
+    ArrayList<BrandRVItemClass> brandData = new ArrayList<>();
     ProductRVAdapter productRVAdapter;
+    BrandRVAdapter brandRVAdapter;
     RecyclerView productRV;
+    RecyclerView brandRV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,11 +42,6 @@ public class HomeActivity extends AppCompatActivity {
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
-
-        List<SlideItem> sliderItem = new ArrayList<>();
-        sliderItem.add((new SlideItem(R.drawable.banner1)));
-        sliderItem.add((new SlideItem(R.drawable.banner2)));
-        sliderItem.add((new SlideItem(R.drawable.banner3)));
 
         //Product Slider
         productRV = binding.productRecycleView;
@@ -53,6 +51,15 @@ public class HomeActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false);
         productRV.setAdapter(productRVAdapter);
         productRV.setLayoutManager(linearLayoutManager);
+
+        //Product Slider
+        brandRV = binding.brandRecycleView;
+        brandRVInit();
+        brandRVAdapter = new BrandRVAdapter(brandData);
+        brandRVAdapter.notifyDataSetChanged();
+        LinearLayoutManager linearLayoutManagerBrand = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false);
+        brandRV.setAdapter(brandRVAdapter);
+        brandRV.setLayoutManager(linearLayoutManagerBrand);
 
         addControls();
         sliderInitialization();
@@ -112,5 +119,14 @@ public class HomeActivity extends AppCompatActivity {
         data.add( new ProductRVItemClass(R.drawable.productimg,"RAM Kingston Fury Beast 16GB Bus 3200 MHz","929.000 ","0"));
         data.add( new ProductRVItemClass(R.drawable.productimg,"Tai Nghe Gaming ADATA XPG EMIX H20","929.000 ","0"));
         data.add( new ProductRVItemClass(R.drawable.productimg,"RAM PNY XLR8 DDR4 8GB 3200MHz LONGDIMM (MD8GD4320016XR)","929.000 ","0"));
+    }
+
+    private void brandRVInit (){
+        brandData.add( new BrandRVItemClass(R.drawable.productimg));
+        brandData.add( new BrandRVItemClass(R.drawable.productimg));
+        brandData.add( new BrandRVItemClass(R.drawable.productimg));
+        brandData.add( new BrandRVItemClass(R.drawable.productimg));
+        brandData.add( new BrandRVItemClass(R.drawable.productimg));
+        brandData.add( new BrandRVItemClass(R.drawable.productimg));
     }
 }
