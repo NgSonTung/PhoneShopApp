@@ -3,7 +3,10 @@ package com.example.phoneshop;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +20,7 @@ import com.example.phoneshop.databinding.ActivityHomeBinding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -35,6 +39,8 @@ public class HomeActivity extends AppCompatActivity {
     BrandRVAdapter brandRVAdapter;
     RecyclerView productRV;
     RecyclerView brandRV;
+
+    GridView gridView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +66,18 @@ public class HomeActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManagerBrand = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false);
         brandRV.setAdapter(brandRVAdapter);
         brandRV.setLayoutManager(linearLayoutManagerBrand);
+
+        //Category
+        gridView = binding.categoryGridView;
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Object o = gridView.getItemAtPosition(position);
+                Category category = (Category) o;
+                Toast.makeText(HomeActivity.this ,"Selected" + " " +category, Toast.LENGTH_LONG).show();
+            }
+        });
 
         addControls();
         sliderInitialization();

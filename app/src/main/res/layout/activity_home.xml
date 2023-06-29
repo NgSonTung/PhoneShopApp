@@ -23,16 +23,42 @@
             android:layout_margin="9dp"
             tools:ignore="MissingConstraints" />
 
+        <GridView
+            android:id="@+id/categoryGridView"
+            android:layout_width="match_parent"
+            android:layout_height="126dp" >
+            <TextView
+                android:id="@+id/txtNameProduct"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="TextView"
+                tools:ignore="HardcodedText" />
+            <TextView
+                android:id="@+id/txtInfo"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="TextView"
+                tools:ignore="HardcodedText" />
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/productimg" />
+        </GridView>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/productRecycleView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:scrollbars="none" />
+            android:scrollbars="none" >
+
+        </androidx.recyclerview.widget.RecyclerView>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/brandRecycleView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:scrollbars="none" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
