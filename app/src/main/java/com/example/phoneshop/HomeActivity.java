@@ -122,11 +122,15 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void brandRVInit (){
-        brandData.add( new BrandRVItemClass(R.drawable.productimg));
-        brandData.add( new BrandRVItemClass(R.drawable.productimg));
-        brandData.add( new BrandRVItemClass(R.drawable.productimg));
-        brandData.add( new BrandRVItemClass(R.drawable.productimg));
-        brandData.add( new BrandRVItemClass(R.drawable.productimg));
-        brandData.add( new BrandRVItemClass(R.drawable.productimg));
+        brandData.add( new BrandRVItemClass(R.drawable.acer));
+        brandData.add( new BrandRVItemClass(R.drawable.apple));
+        brandData.add( new BrandRVItemClass(R.drawable.asus));
+        brandData.add( new BrandRVItemClass(R.drawable.vivo));
+        brandData.add( new BrandRVItemClass(R.drawable.hp));
+        brandData.add( new BrandRVItemClass(R.drawable.rapoo));
+        brandData.add( new BrandRVItemClass(R.drawable.xiaomi));
+        brandData.add( new BrandRVItemClass(R.drawable.lenovo));
+        brandData.add( new BrandRVItemClass(R.drawable.nokia));
+        brandData.add( new BrandRVItemClass(R.drawable.garmin));
     }
 }
