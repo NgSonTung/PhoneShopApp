@@ -48,7 +48,7 @@ public class HomeActivity extends AppCompatActivity {
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
-
+        setContentView(binding.getRoot());
         //Product Slider
         productRV = binding.productRecycleView;
         productRVInit();
@@ -68,14 +68,18 @@ public class HomeActivity extends AppCompatActivity {
         brandRV.setLayoutManager(linearLayoutManagerBrand);
 
         //Category
-        gridView = binding.categoryGridView;
+        String[] productName = {"PC GAMING", "BÀN PHÍM CƠ",};
+        int[] productImg = {R.drawable.user,R.drawable.user };
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        GridAdapter gridAdapter = new GridAdapter(HomeActivity.this,productName,productImg);
+        binding.categoryGridView.setAdapter(gridAdapter);
+
+        binding.categoryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Object o = gridView.getItemAtPosition(position);
-                Category category = (Category) o;
-                Toast.makeText(HomeActivity.this ,"Selected" + " " +category, Toast.LENGTH_LONG).show();
+
+                Toast.makeText(HomeActivity.this, "Click on "+ productName[position], Toast.LENGTH_SHORT).show();
+
             }
         });
 
