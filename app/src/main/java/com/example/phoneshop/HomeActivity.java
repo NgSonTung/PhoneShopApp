@@ -3,7 +3,10 @@ package com.example.phoneshop;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +20,7 @@ import com.example.phoneshop.databinding.ActivityHomeBinding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -36,13 +40,15 @@ public class HomeActivity extends AppCompatActivity {
     RecyclerView productRV;
     RecyclerView brandRV;
 
+    GridView gridView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
-
+        setContentView(binding.getRoot());
         //Product Slider
         productRV = binding.productRecycleView;
         productRVInit();
@@ -60,6 +66,22 @@ public class HomeActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManagerBrand = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false);
         brandRV.setAdapter(brandRVAdapter);
         brandRV.setLayoutManager(linearLayoutManagerBrand);
+
+        //Category
+        String[] productName = {"PC GAMING", "BÀN PHÍM CƠ",};
+        int[] productImg = {R.drawable.user,R.drawable.user };
+
+        GridAdapter gridAdapter = new GridAdapter(HomeActivity.this,productName,productImg);
+        binding.categoryGridView.setAdapter(gridAdapter);
+
+        binding.categoryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Toast.makeText(HomeActivity.this, "Click on "+ productName[position], Toast.LENGTH_SHORT).show();
+
+            }
+        });
 
         addControls();
         sliderInitialization();
