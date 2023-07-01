@@ -58,7 +58,7 @@ public class HomeActivity extends AppCompatActivity {
         productRV.setAdapter(productRVAdapter);
         productRV.setLayoutManager(linearLayoutManager);
 
-        //Product Slider
+        //Brand Slider
         brandRV = binding.brandRecycleView;
         brandRVInit();
         brandRVAdapter = new BrandRVAdapter(brandData);
@@ -68,20 +68,20 @@ public class HomeActivity extends AppCompatActivity {
         brandRV.setLayoutManager(linearLayoutManagerBrand);
 
         //Category
-        String[] productName = {"PC GAMING", "BÀN PHÍM CƠ",};
-        int[] productImg = {R.drawable.user,R.drawable.user };
-
-        GridAdapter gridAdapter = new GridAdapter(HomeActivity.this,productName,productImg);
-        binding.categoryGridView.setAdapter(gridAdapter);
-
-        binding.categoryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                Toast.makeText(HomeActivity.this, "Click on "+ productName[position], Toast.LENGTH_SHORT).show();
-
-            }
-        });
+//        String[] productName = {"PC GAMING", "BÀN PHÍM CƠ",};
+//        int[] productImg = {R.drawable.user,R.drawable.user };
+//
+//        GridAdapter gridAdapter = new GridAdapter(HomeActivity.this,productName,productImg);
+//        binding.categoryGridView.setAdapter(gridAdapter);
+//
+//        binding.categoryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//
+//                Toast.makeText(HomeActivity.this, "Click on "+ productName[position], Toast.LENGTH_SHORT).show();
+//
+//            }
+//        });
 
         addControls();
         sliderInitialization();

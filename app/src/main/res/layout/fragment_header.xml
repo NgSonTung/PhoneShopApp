@@ -25,7 +25,9 @@
             android:layout_gravity="center"
             android:layout_marginRight="5dp"
             android:layout_weight="1"
-            tools:src="@drawable/search" />
+            app:srcCompat="@drawable/search"
+            tools:src="@drawable/search"
+            tools:srcCompat="@drawable/search" />
 
         <AutoCompleteTextView
             android:id="@+id/tvSearch"
