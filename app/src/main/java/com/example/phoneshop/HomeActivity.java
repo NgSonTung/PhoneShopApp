@@ -3,7 +3,10 @@ package com.example.phoneshop;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +20,7 @@ import com.example.phoneshop.databinding.ActivityHomeBinding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -30,8 +34,13 @@ public class HomeActivity extends AppCompatActivity {
 
     //Product Slider
     ArrayList<ProductRVItemClass> data = new ArrayList<>();
+    ArrayList<BrandRVItemClass> brandData = new ArrayList<>();
     ProductRVAdapter productRVAdapter;
+    BrandRVAdapter brandRVAdapter;
     RecyclerView productRV;
+    RecyclerView brandRV;
+
+    GridView gridView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,12 +48,7 @@ public class HomeActivity extends AppCompatActivity {
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
-
-        List<SlideItem> sliderItem = new ArrayList<>();
-        sliderItem.add((new SlideItem(R.drawable.banner1)));
-        sliderItem.add((new SlideItem(R.drawable.banner2)));
-        sliderItem.add((new SlideItem(R.drawable.banner3)));
-
+        setContentView(binding.getRoot());
         //Product Slider
         productRV = binding.productRecycleView;
         productRVInit();
@@ -53,6 +57,31 @@ public class HomeActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false);
         productRV.setAdapter(productRVAdapter);
         productRV.setLayoutManager(linearLayoutManager);
+
+        //Product Slider
+        brandRV = binding.brandRecycleView;
+        brandRVInit();
+        brandRVAdapter = new BrandRVAdapter(brandData);
+        brandRVAdapter.notifyDataSetChanged();
+        LinearLayoutManager linearLayoutManagerBrand = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false);
+        brandRV.setAdapter(brandRVAdapter);
+        brandRV.setLayoutManager(linearLayoutManagerBrand);
+
+        //Category
+        String[] productName = {"PC GAMING", "BÀN PHÍM CƠ",};
+        int[] productImg = {R.drawable.user,R.drawable.user };
+
+        GridAdapter gridAdapter = new GridAdapter(HomeActivity.this,productName,productImg);
+        binding.categoryGridView.setAdapter(gridAdapter);
+
+        binding.categoryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Toast.makeText(HomeActivity.this, "Click on "+ productName[position], Toast.LENGTH_SHORT).show();
+
+            }
+        });
 
         addControls();
         sliderInitialization();
@@ -112,5 +141,18 @@ public class HomeActivity extends AppCompatActivity {
         data.add( new ProductRVItemClass(R.drawable.productimg,"RAM Kingston Fury Beast 16GB Bus 3200 MHz","929.000 ","0"));
         data.add( new ProductRVItemClass(R.drawable.productimg,"Tai Nghe Gaming ADATA XPG EMIX H20","929.000 ","0"));
         data.add( new ProductRVItemClass(R.drawable.productimg,"RAM PNY XLR8 DDR4 8GB 3200MHz LONGDIMM (MD8GD4320016XR)","929.000 ","0"));
+    }
+
+    private void brandRVInit (){
+        brandData.add( new BrandRVItemClass(R.drawable.acer));
+        brandData.add( new BrandRVItemClass(R.drawable.apple));
+        brandData.add( new BrandRVItemClass(R.drawable.asus));
+        brandData.add( new BrandRVItemClass(R.drawable.vivo));
+        brandData.add( new BrandRVItemClass(R.drawable.hp));
+        brandData.add( new BrandRVItemClass(R.drawable.rapoo));
+        brandData.add( new BrandRVItemClass(R.drawable.xiaomi));
+        brandData.add( new BrandRVItemClass(R.drawable.lenovo));
+        brandData.add( new BrandRVItemClass(R.drawable.nokia));
+        brandData.add( new BrandRVItemClass(R.drawable.garmin));
     }
 }
