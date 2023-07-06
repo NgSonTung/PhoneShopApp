@@ -50,7 +50,6 @@ public class ProductRVAdapter extends RecyclerView.Adapter<ProductRVAdapter.MyHo
         holder.title.setText(data.get(position).getTitle());
         holder.price.setText(data.get(position).getPrice() + " đ");
         holder.rating.setText(data.get(position).getRating() + " đánh giá");
-        Log.d("TAG", data.get(position).getTitle());
     }
 
     @Override
