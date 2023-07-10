@@ -1,18 +1,22 @@
 package com.example.phoneshop;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.example.phoneshop.databinding.ActivityDetailBinding;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivityFragment extends Fragment {
 
     ActivityDetailBinding binding;
 
@@ -23,13 +27,16 @@ public class DetailActivity extends AppCompatActivity {
 
     ArrayList<Integer> imgList = new ArrayList<Integer>();
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = ActivityDetailBinding.inflate(getLayoutInflater());
-        View view = binding.getRoot();
-        setContentView(view);
-        setContentView(binding.getRoot());
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = ActivityDetailBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         productImgRV = binding.detailRVMain;
         subImgRV = binding.detailRVSub;
@@ -37,14 +44,14 @@ public class DetailActivity extends AppCompatActivity {
 
         productImgRVAdapter = new ProductImgRVAdapter(imgList);
         productImgRVAdapter.notifyDataSetChanged();
-        LinearLayoutManager productImgManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false);
+        LinearLayoutManager productImgManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL,false);
         productImgRV.setAdapter(productImgRVAdapter);
         productImgRV.setLayoutManager(productImgManager);
 
         subImgRVAdapter = new SubImgRVAdapter(imgList);
         subImgRVAdapter.notifyDataSetChanged();
         subImgRV.setAdapter(subImgRVAdapter);
-        LinearLayoutManager subImgManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false);
+        LinearLayoutManager subImgManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL,false);
         subImgRV.setLayoutManager(subImgManager);
     }
 }

@@ -2,14 +2,14 @@ package com.example.phoneshop;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
+import android.view.ViewGroup;
 import android.widget.GridView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
@@ -20,9 +20,8 @@ import com.example.phoneshop.databinding.ActivityHomeBinding;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeFragment extends Fragment {
 
     ActivityHomeBinding binding;
 
@@ -42,53 +41,41 @@ public class HomeActivity extends AppCompatActivity {
 
     GridView gridView;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = ActivityHomeBinding.inflate(getLayoutInflater());
-        View view = binding.getRoot();
-        setContentView(view);
-        setContentView(binding.getRoot());
-        //Product Slider
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = ActivityHomeBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        addControls();
+        sliderInitialization();
+
+        // Product Slider
         productRV = binding.productRecycleView;
         productRVInit();
         productRVAdapter = new ProductRVAdapter(data);
         productRVAdapter.notifyDataSetChanged();
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
         productRV.setAdapter(productRVAdapter);
         productRV.setLayoutManager(linearLayoutManager);
 
-        //Brand Slider
+        // Brand Slider
         brandRV = binding.brandRecycleView;
         brandRVInit();
         brandRVAdapter = new BrandRVAdapter(brandData);
         brandRVAdapter.notifyDataSetChanged();
-        LinearLayoutManager linearLayoutManagerBrand = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false);
+        LinearLayoutManager linearLayoutManagerBrand = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
         brandRV.setAdapter(brandRVAdapter);
         brandRV.setLayoutManager(linearLayoutManagerBrand);
-
-        //Category
-//        String[] productName = {"PC GAMING", "BÀN PHÍM CƠ",};
-//        int[] productImg = {R.drawable.user,R.drawable.user };
-//
-//        GridAdapter gridAdapter = new GridAdapter(HomeActivity.this,productName,productImg);
-//        binding.categoryGridView.setAdapter(gridAdapter);
-//
-//        binding.categoryGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//
-//                Toast.makeText(HomeActivity.this, "Click on "+ productName[position], Toast.LENGTH_SHORT).show();
-//
-//            }
-//        });
-
-        addControls();
-        sliderInitialization();
     }
 
     private void addControls() {
-        viewPager2 = findViewById(R.id.viewPager);
+//        viewPager2 = findViewById(R.id.viewPager);
+        viewPager2 = binding.viewPager;
     }
 
     private void sliderInitialization() {

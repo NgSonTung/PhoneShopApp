@@ -17,7 +17,9 @@
         android:layout_marginBottom="10dp"
         android:layout_weight="1"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="gone">
 
         <ImageButton
             android:id="@+id/btnHome"
@@ -49,7 +51,9 @@
         android:layout_marginBottom="10dp"
         android:layout_weight="1"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="gone">
 
         <ImageButton
             android:id="@+id/btnNotification"
@@ -80,7 +84,9 @@
         android:layout_marginBottom="10dp"
         android:layout_weight="1"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="gone">
 
         <ImageButton
             android:id="@+id/btnCategory"
@@ -111,7 +117,9 @@
         android:layout_marginBottom="10dp"
         android:layout_weight="1"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="gone">
 
         <ImageButton
             android:id="@+id/btnProfile"
@@ -133,6 +141,24 @@
             android:text="Cá nhân"
             android:textColor="@color/white"
             android:textSize="11sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#005EC4"
+            android:foregroundTint="#E8E8E8"
+            app:backgroundTint="#005EC4"
+            app:itemBackground="@drawable/selected_item_nav"
+            app:itemIconTint="@color/white"
+            app:itemTextColor="#F3ECEC"
+            app:menu="@menu/menu_bottom_nav" />
     </LinearLayout>
 
 </LinearLayout>

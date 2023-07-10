@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/itemMenuNavHome"
+        android:icon="@drawable/home"
+        app:showAsAction="never"
+        android:iconTint="@color/white"
+        android:title="Home" />
+    <item
+        android:id="@+id/itemMenuNavNotice"
+        android:icon="@drawable/bell"
+
+
+        android:iconTint="#FFFFFF"
+        android:title="Thông báo" />
+    <item
+        android:id="@+id/itemMenuNavCategory"
+        android:icon="@drawable/menu"
+
+        android:iconTint="#FFFFFF"
+        android:title="Danh mục" />
+    <item
+        android:id="@+id/itemMenuNavUser"
+        android:icon="@drawable/user"
+
+        android:iconTint="#FFFFFF"
+        android:iconTintMode="multiply"
+        android:title="Cá nhân" />
+
+
+</menu>
