@@ -1,17 +1,26 @@
 package com.example.phoneshop;
 
+import android.content.Intent;
+import android.graphics.drawable.shapes.Shape;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.SearchView;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.example.phoneshop.databinding.FragmentProductListBinding;
 
@@ -29,10 +38,63 @@ public class ProductListFragment extends Fragment {
     ProductRVAdapter productRVAdapter;
     RecyclerView productRV;
 
+    //Spinner
+    ListView myListview;
+    Spinner mySpinner;
+    ArrayAdapter<arr> adapter;
+    String[] categories = {"All", "Ram", "Tai nghe"};
+
+
+    private ArrayList<arr> getCosmicBodies(){
+        ArrayList<arr> data = new ArrayList<>();
+        data.clear();
+        data.add(new arr("KingSton", 1));
+        data.add(new arr("acer", 2));
+        data.add(new arr("apple", 3));
+        data.add(new arr("asus", 1));
+        data.add(new arr("ava", 2));
+        data.add(new arr("befit", 3));
+    return  data;
+    }
+    private  void getSelectedCategoryData(int categoryID){
+        ArrayList<arr> arrs = new ArrayList<>();
+        if(categoryID == 0 ){
+            adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, getCosmicBodies());
+        } else {
+            for (arr arr : getCosmicBodies()){
+                if(arr.getCategoryID() == categoryID ){
+                    arrs.add(arr);
+                }
+            }
+            adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, arrs)
+;        }
+        myListview.setAdapter(adapter);
+    }
+
+    class arr{
+        private String name;
+        private int categoryID;
+        public String getName(){
+            return name;
+        }
+        public int getCategoryID(){
+            return categoryID;
+        }
+        public arr (String name, int categoryID){
+            this.name = name;
+            this.categoryID = categoryID;
+        }
+        @Override
+        public String toString(){
+            return name;
+        }
+    }
+
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -60,6 +122,7 @@ public class ProductListFragment extends Fragment {
         return fragment;
     }
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,10 +130,30 @@ public class ProductListFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
+ /*       initializeView();*/
     }
+   /* private  void initializeView(){
+        mySpinner = binding.mySpinner;
+        mySpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, categories));
+        myListview = binding.myListview;
+        myListview.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, getCosmicBodies()));
 
-    @Override
+        mySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView,View view, int position,long itemID){
+                if (position >= 0 && position < categories.length){
+                    getSelectedCategoryData(position);
+                } else {
+                    Toast.makeText(getActivity(), "Selected Category does not exist", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView){
+
+            }
+        });
+    }*/
+   @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentProductListBinding.inflate(inflater,container ,false);
@@ -87,6 +170,8 @@ public class ProductListFragment extends Fragment {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         productRV.setAdapter(productRVAdapter);
         productRV.setLayoutManager(gridLayoutManager);
+
+
     }
 
     private void productRVInit (){
