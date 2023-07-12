@@ -35,11 +35,23 @@
 <!--                    android:name="com.example.phoneshop.HomeFragment" />-->
 
 
+<!--                <fragment-->
+<!--                    android:id="@+id/homeFragment"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:name="com.example.phoneshop.ProductListFragment" />-->
+
+<!--                <fragment-->
+<!--                    android:id="@+id/homeFragment"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:name="com.example.phoneshop.Fragment_Details" />-->
+
                 <fragment
                     android:id="@+id/homeFragment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:name="com.example.phoneshop.ProductListFragment" />
+                    android:name="com.example.phoneshop.FragmentHome" />
             </LinearLayout>
         </ScrollView>
 
