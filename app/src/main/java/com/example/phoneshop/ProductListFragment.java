@@ -42,6 +42,8 @@ public class ProductListFragment extends Fragment {
     ListView myListview;
     Spinner mySpinner;
     ArrayAdapter<arr> adapter;
+    // Ram : 1
+    // Tai nghe : 2
     String[] categories = {"All", "Ram", "Tai nghe"};
 
 
@@ -50,10 +52,10 @@ public class ProductListFragment extends Fragment {
         data.clear();
         data.add(new arr("KingSton", 1));
         data.add(new arr("acer", 2));
-        data.add(new arr("apple", 3));
+        data.add(new arr("apple", 1));
         data.add(new arr("asus", 1));
         data.add(new arr("ava", 2));
-        data.add(new arr("befit", 3));
+        data.add(new arr("befit", 2));
     return  data;
     }
     private  void getSelectedCategoryData(int categoryID){
@@ -130,7 +132,6 @@ public class ProductListFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
     }
    private  void initializeView(){
         mySpinner = binding.mySpinner;
