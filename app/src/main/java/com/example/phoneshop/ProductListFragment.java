@@ -130,9 +130,9 @@ public class ProductListFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
- /*       initializeView();*/
+
     }
-   /* private  void initializeView(){
+   private  void initializeView(){
         mySpinner = binding.mySpinner;
         mySpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, categories));
         myListview = binding.myListview;
@@ -152,7 +152,7 @@ public class ProductListFragment extends Fragment {
 
             }
         });
-    }*/
+    }
    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -170,7 +170,7 @@ public class ProductListFragment extends Fragment {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         productRV.setAdapter(productRVAdapter);
         productRV.setLayoutManager(gridLayoutManager);
-
+        initializeView();
 
     }
 
