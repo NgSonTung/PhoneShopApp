@@ -17,17 +17,13 @@
             android:exported="false" />
         <activity
             android:name=".DetailActivityFragment"
-            android:exported="true" >
-
-        </activity>
+            android:exported="true" />
         <activity
             android:name=".RegisterActivity"
             android:exported="false" />
         <activity
             android:name=".HomeFragment"
-            android:exported="false">
-
-        </activity>
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true" >
