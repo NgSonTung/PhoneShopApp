@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PersonalFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@drawable/customborder"
+            android:orientation="horizontal"
+            android:padding="0dp">
+
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="10dp"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:scaleType="centerInside"
+                android:src="@drawable/Favorite"
+                app:srcCompat="@drawable/list_check_solid" />
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="10dp"
+                android:layout_height="60dp"
+                android:layout_weight="7"
+                android:gravity="center_vertical"
+                android:text="Đơn Mua"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/imageView5"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:scaleType="centerInside"
+                android:scaleX=".6"
+                android:scaleY=".6"
+                app:srcCompat="@drawable/chevron_right_solid"
+                tools:src="@tools:sample/avatars" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@drawable/customborder"
+            android:orientation="horizontal"
+            android:padding="0dp">
+
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="10dp"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:scaleType="centerInside"
+                android:src="@drawable/Favorite" />
+
+            <TextView
+                android:id="@+id/textView5"
+                android:layout_width="10dp"
+                android:layout_height="60dp"
+                android:layout_weight="7"
+                android:gravity="center_vertical"
+                android:text="Đã thích"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/imageView6"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:scaleType="centerInside"
+                android:scaleX=".6"
+                android:scaleY=".6"
+                app:srcCompat="@drawable/chevron_right_solid"
+                tools:src="@tools:sample/avatars" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>
