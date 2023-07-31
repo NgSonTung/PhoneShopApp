@@ -1,5 +1,7 @@
 package com.example.phoneshop;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -12,16 +14,35 @@ import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Handler;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
+import android.widget.ListAdapter;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.phoneshop.databinding.FragmentHomeBinding;
+
+import org.chromium.net.CronetEngine;
+import org.chromium.net.UrlRequest;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class FragmentHome extends Fragment {
     FragmentHomeBinding binding;
@@ -33,7 +54,7 @@ public class FragmentHome extends Fragment {
     private Handler slideHandle = new Handler();
 
     //Product Slider
-    ArrayList<ProductRVItemClass> data = new ArrayList<>();
+    ArrayList<ProductRVItemClass> iphoneProductList = new ArrayList<>();
     ArrayList<BrandRVItemClass> brandData = new ArrayList<>();
     ProductRVAdapter productRVAdapter;
     BrandRVAdapter brandRVAdapter;
@@ -85,13 +106,14 @@ public class FragmentHome extends Fragment {
         sliderInitialization();
 
         // Product Slider
-        productRV = binding.productRecycleView;
-        productRVInit();
-        productRVAdapter = new ProductRVAdapter(data);
-        productRVAdapter.notifyDataSetChanged();
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
-        productRV.setAdapter(productRVAdapter);
-        productRV.setLayoutManager(linearLayoutManager);
+        getIphoneProducts();
+        Log.v("list product", iphoneProductList.toString());
+//        productRV = binding.productRecycleView;
+//        productRVAdapter = new ProductRVAdapter(iphoneProductList);
+//        productRVAdapter.notifyDataSetChanged();
+//        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
+//        productRV.setAdapter(productRVAdapter);
+//        productRV.setLayoutManager(linearLayoutManager);
 
         // Brand Slider
         brandRV = binding.brandRecycleView;
@@ -102,6 +124,7 @@ public class FragmentHome extends Fragment {
         brandRV.setAdapter(brandRVAdapter);
         brandRV.setLayoutManager(linearLayoutManagerBrand);
     }
+
     private void addControls() {
 //        viewPager2 = findViewById(R.id.viewPager);
         viewPager2 = binding.viewPager;
@@ -126,7 +149,7 @@ public class FragmentHome extends Fragment {
             @Override
             public void transformPage(@NonNull View page, float position) {
                 float r = 1 - Math.abs(position);
-                page.setScaleY(0.85f + r*0.15f);
+                page.setScaleY(0.85f + r * 0.15f);
             }
         });
 
@@ -150,27 +173,176 @@ public class FragmentHome extends Fragment {
         }
     };
 
-    private void productRVInit (){
-        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM Kingston Fury Beast 16GB Bus 3200 MHz","929.000 ","0"));
-        data.add( new ProductRVItemClass(R.drawable.productimg,"Tai Nghe Gaming ADATA XPG EMIX H20","929.000 ","0"));
-        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM PNY XLR8 DDR4 8GB 3200MHz LONGDIMM (MD8GD4320016XR)","929.000 ","0"));
-        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM Kingston Fury Beast 16GB Bus 3200 MHz","929.000 ","0"));
-        data.add( new ProductRVItemClass(R.drawable.productimg,"Tai Nghe Gaming ADATA XPG EMIX H20","929.000 ","0"));
-        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM PNY XLR8 DDR4 8GB 3200MHz LONGDIMM (MD8GD4320016XR)","929.000 ","0"));
+    private void brandRVInit() {
+        brandData.add(new BrandRVItemClass(R.drawable.acer));
+        brandData.add(new BrandRVItemClass(R.drawable.apple));
+        brandData.add(new BrandRVItemClass(R.drawable.asus));
+        brandData.add(new BrandRVItemClass(R.drawable.vivo));
+        brandData.add(new BrandRVItemClass(R.drawable.hp));
+        brandData.add(new BrandRVItemClass(R.drawable.rapoo));
+        brandData.add(new BrandRVItemClass(R.drawable.xiaomi));
+        brandData.add(new BrandRVItemClass(R.drawable.lenovo));
+        brandData.add(new BrandRVItemClass(R.drawable.nokia));
+        brandData.add(new BrandRVItemClass(R.drawable.garmin));
     }
 
-    private void brandRVInit (){
-        brandData.add( new BrandRVItemClass(R.drawable.acer));
-        brandData.add( new BrandRVItemClass(R.drawable.apple));
-        brandData.add( new BrandRVItemClass(R.drawable.asus));
-        brandData.add( new BrandRVItemClass(R.drawable.vivo));
-        brandData.add( new BrandRVItemClass(R.drawable.hp));
-        brandData.add( new BrandRVItemClass(R.drawable.rapoo));
-        brandData.add( new BrandRVItemClass(R.drawable.xiaomi));
-        brandData.add( new BrandRVItemClass(R.drawable.lenovo));
-        brandData.add( new BrandRVItemClass(R.drawable.nokia));
-        brandData.add( new BrandRVItemClass(R.drawable.garmin));
+
+    public void getProductImage(String imgName, ImageResponseCallback callback) {
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        String url = "http://172.25.64.1:3001/api/v1/product/image/" + imgName;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject dataObj = new JSONObject(response);
+                            JSONObject data = dataObj.getJSONObject("Data");
+                            String img64 = data.getString("base64");
+                            byte[] decodedString = Base64.decode(img64, Base64.DEFAULT);
+                            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                            callback.onImageReceived(decodedByte);
+                        } catch (JSONException e) {
+                            callback.onError("Error parsing JSON");
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                callback.onError("Error fetching image from API");
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
 
+
+//    public void getIphoneProducts() {
+//        // Instantiate the RequestQueue.
+//        RequestQueue queue = Volley.newRequestQueue(getActivity());
+//        String urlAPI = "http://172.25.64.1:3001/api/v1/product/?brandID=2";
+//
+//        // Request a string response from the provided URL.
+//        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
+//                new Response.Listener<String>() {
+//                    @Override
+//                    public void onResponse(String response) {
+//                        // Display the first 500 characters of the response string.
+//                        try {
+//                            JSONObject dataObj = new JSONObject(response);
+//                            JSONArray dataArray = dataObj.getJSONArray("Data");
+//
+//                            for (int i = 0; i < dataArray.length(); i++) {
+//                                JSONObject productObj = dataArray.getJSONObject(i);
+//                                String imgName = productObj.getString("Image");
+//                                String title = productObj.getString("Name");
+//                                String price = productObj.getString("Price");
+//                                String rating = productObj.getString("Favorite");
+//                                getProductImage(imgName, new ImageResponseCallback() {
+//                                    @Override
+//                                    public void onImageReceived(Bitmap bitmap) {
+//                                        Log.v("anh", bitmap.toString());
+//                                        ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating);
+//                                        Log.v("product", product.title);
+//                                        iphoneProductList.add(product);
+//
+//                                    }
+//
+//                                    @Override
+//                                    public void onError(String errorMessage) {
+//                                        Log.e("API Error", errorMessage);
+//                                    }
+//                                });
+//                            }
+//                            Log.v("cc", iphoneProductList.toString());
+//
+//
+//                        } catch (JSONException e) {
+//                            throw new RuntimeException(e);
+//                        }
+//                        productRV = binding.productRecycleView;
+//                        productRVAdapter = new ProductRVAdapter(iphoneProductList);
+//                        productRVAdapter.notifyDataSetChanged();
+//                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
+//                        productRV.setAdapter(productRVAdapter);
+//                        productRV.setLayoutManager(linearLayoutManager);
+//                    }
+//                }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                Log.v("Error api ne", error.toString());
+//            }
+//        });
+//        queue.add(stringRequest);
+//    }
+public void getIphoneProducts() {
+    // Instantiate the RequestQueue.
+    RequestQueue queue = Volley.newRequestQueue(getActivity());
+    String urlAPI = "http://172.25.64.1:3001/api/v1/product/?brandID=2";
+
+    // Request a string response from the provided URL.
+    StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
+            new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    try {
+                        JSONObject dataObj = new JSONObject(response);
+                        JSONArray dataArray = dataObj.getJSONArray("Data");
+
+                        List<CompletableFuture<Void>> imageFutures = new ArrayList<>();
+
+                        for (int i = 0; i < dataArray.length(); i++) {
+                            JSONObject productObj = dataArray.getJSONObject(i);
+                            String imgName = productObj.getString("Image");
+                            String title = productObj.getString("Name");
+                            String price = productObj.getString("Price");
+                            String rating = productObj.getString("Favorite");
+
+                            // Create a CompletableFuture for each image retrieval task
+                            CompletableFuture<Void> imageFuture = CompletableFuture.runAsync(() -> {
+                                getProductImage(imgName, new ImageResponseCallback() {
+                                    @Override
+                                    public void onImageReceived(Bitmap bitmap) {
+                                        ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating);
+                                        iphoneProductList.add(product);
+                                    }
+
+                                    @Override
+                                    public void onError(String errorMessage) {
+                                        Log.e("API Error", errorMessage);
+                                    }
+                                });
+                            });
+
+                            imageFutures.add(imageFuture);
+                        }
+
+                        // Wait for all the image retrieval tasks to complete
+                        CompletableFuture<Void> allImagesFuture = CompletableFuture.allOf(imageFutures.toArray(new CompletableFuture[0]));
+                        allImagesFuture.get(); // This will block until all image tasks are completed
+
+                        // Update the RecyclerView once all images are fetched
+                        productRV = binding.productRecycleView;
+                        productRVAdapter = new ProductRVAdapter(iphoneProductList);
+                        productRVAdapter.notifyDataSetChanged();
+                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
+                        productRV.setAdapter(productRVAdapter);
+                        productRV.setLayoutManager(linearLayoutManager);
+
+                    } catch (JSONException | InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }, new Response.ErrorListener() {
+        @Override
+        public void onErrorResponse(VolleyError error) {
+            Log.v("Error api ne", error.toString());
+        }
+    });
+    queue.add(stringRequest);
+}
 
 }

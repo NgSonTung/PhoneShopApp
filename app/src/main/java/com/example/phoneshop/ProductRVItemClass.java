@@ -1,9 +1,11 @@
 package com.example.phoneshop;
 
+import android.graphics.Bitmap;
+
 import java.util.ArrayList;
 
 public class ProductRVItemClass {
-    int imageID;
+    Bitmap imageID;
     String title;
     String price;
     String rating;
@@ -16,12 +18,13 @@ public class ProductRVItemClass {
         this.rating = rating;
     }
 
-    public int getImageID() {
+    public Bitmap getImageID() {
         return imageID;
     }
 
-    public void setImageID(int imageID) {
+    public Bitmap setImageID(Bitmap imageID) {
         this.imageID = imageID;
+        return imageID;
     }
 
     public String getTitle() {
@@ -40,7 +43,7 @@ public class ProductRVItemClass {
         this.price = price;
     }
 
-    public ProductRVItemClass(int imageID, String title, String price, String rating) {
+    public ProductRVItemClass(Bitmap imageID, String title, String price, String rating) {
         this.imageID = imageID;
         this.title = title;
         this.price = price;
@@ -48,7 +51,7 @@ public class ProductRVItemClass {
     }
 
 
-    public static ArrayList<ProductRVItemClass> initData(int[] imageList, String[] titleList, String[] priceList, String[] rating) {
+    public static ArrayList<ProductRVItemClass> initData(Bitmap[] imageList, String[] titleList, String[] priceList, String[] rating) {
 
         ArrayList<ProductRVItemClass> arrList = new ArrayList<>();
 

@@ -1,5 +1,6 @@
 package com.example.phoneshop;
 
+import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,7 +47,7 @@ public class ProductRVAdapter extends RecyclerView.Adapter<ProductRVAdapter.MyHo
 
     @Override
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
-        holder.img.setImageResource(data.get(position).getImageID());
+        holder.img.setImageBitmap(data.get(position).getImageID());
         holder.title.setText(data.get(position).getTitle());
         holder.price.setText(data.get(position).getPrice() + " đ");
         holder.rating.setText(data.get(position).getRating() + " đánh giá");
