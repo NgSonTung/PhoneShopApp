@@ -5,6 +5,9 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,7 +25,6 @@ import java.util.ArrayList;
  * create an instance of this fragment.
  */
 public class OrderFragment extends Fragment {
-
         FragmentOrderBinding binding;
         ArrayList<OrderRVItemClass> data = new ArrayList<>();
         OrderRVAdapter orderRVAdapter;
@@ -79,6 +81,20 @@ public class OrderFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            // Return or handle the case when the activity is null
+            return;
+        }
+
+        FragmentManager fragmentManager = activity.getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setReorderingAllowed(true);
+        Fragment headerOrderFragment = new HeaderOrderFragment();
+        fragmentTransaction.replace(R.id.fragmentContainerView, headerOrderFragment);
+        fragmentTransaction.commit();
+
+
 
         orderRV = binding.orderFrag;
         OrderRVInit();

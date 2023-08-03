@@ -46,7 +46,7 @@ import java.util.concurrent.Executors;
 
 public class FragmentHome extends Fragment {
     FragmentHomeBinding binding;
-
+    ConstantVar constantVar = new ConstantVar();
     //Slider
     ViewPager2 viewPager2;
 
@@ -190,7 +190,7 @@ public class FragmentHome extends Fragment {
     public void getProductImage(String imgName, ImageResponseCallback callback) {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        String url = "http://192.168.1.3:3001/api/v1/product/image/" + imgName;
+        String url = "http://"+constantVar.idAddress+"/api/v1/product/image/" + imgName;
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -224,7 +224,7 @@ public class FragmentHome extends Fragment {
     public void getIphoneProducts() {
         // Instantiate the RequestQueue.
 //        RequestQueue queue = Volley.newRequestQueue(getActivity());
-        String urlAPI = "http://192.168.1.3:3001/api/v1/product/?brandID=2";
+        String urlAPI = "http://"+constantVar.idAddress+"/api/v1/product/?brandID=2";
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
