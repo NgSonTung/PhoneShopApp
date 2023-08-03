@@ -86,12 +86,12 @@ public class OrderFragment extends Fragment {
             // Return or handle the case when the activity is null
             return;
         }
-
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setReorderingAllowed(true);
+//        fragmentTransaction.setReorderingAllowed(true);
         Fragment headerOrderFragment = new HeaderOrderFragment();
         fragmentTransaction.replace(R.id.fragmentContainerView, headerOrderFragment);
+        fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
 
 

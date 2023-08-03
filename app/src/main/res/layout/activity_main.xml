@@ -67,9 +67,8 @@
             android:layout_gravity="top"
             android:orientation="horizontal">
 
-            <fragment
+            <FrameLayout
                 android:id="@+id/fragmentContainerView"
-                android:name="com.example.phoneshop.HeaderFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
