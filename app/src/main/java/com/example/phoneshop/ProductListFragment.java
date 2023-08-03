@@ -181,7 +181,7 @@ public class ProductListFragment extends Fragment implements  DataCallback {
         super.onViewCreated(view, savedInstanceState);
         productRV = binding.rv;
 //        getProductApi();
-        productRVAdapter = new ProductRVAdapter(data);
+        productRVAdapter = new ProductRVAdapter(getContext(),data);
         productRVAdapter.notifyDataSetChanged();
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         productRV.setAdapter(productRVAdapter);
@@ -251,7 +251,7 @@ public class ProductListFragment extends Fragment implements  DataCallback {
     public void onDataReceived(ArrayList products) {
         this.data = products;
         Log.v("products", products.toString());
-        ProductRVAdapter adapter = new ProductRVAdapter(data);
+        ProductRVAdapter adapter = new ProductRVAdapter(getContext(),data);
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {

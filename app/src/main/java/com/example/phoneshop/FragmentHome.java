@@ -190,7 +190,7 @@ public class FragmentHome extends Fragment {
     public void getProductImage(String imgName, ImageResponseCallback callback) {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        String url = "http://172.25.64.1:3001/api/v1/product/image/" + imgName;
+        String url = "http://192.168.1.3:3001/api/v1/product/image/" + imgName;
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -199,11 +199,13 @@ public class FragmentHome extends Fragment {
                     public void onResponse(String response) {
                         try {
                             JSONObject dataObj = new JSONObject(response);
+//                            Log.v("img",dataObj.toString());
                             JSONObject data = dataObj.getJSONObject("Data");
-                            String img64 = data.getString("base64");
+                            String img64 = data.getString("Base64");
                             byte[] decodedString = Base64.decode(img64, Base64.DEFAULT);
                             Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                             callback.onImageReceived(decodedByte);
+                            Log.v("img", decodedByte.toString());
                         } catch (JSONException e) {
                             callback.onError("Error parsing JSON");
                         }
@@ -219,36 +221,119 @@ public class FragmentHome extends Fragment {
         queue.add(stringRequest);
     }
 
-
-//    public void getIphoneProducts() {
-//        // Instantiate the RequestQueue.
+    public void getIphoneProducts() {
+        // Instantiate the RequestQueue.
 //        RequestQueue queue = Volley.newRequestQueue(getActivity());
-//        String urlAPI = "http://172.25.64.1:3001/api/v1/product/?brandID=2";
+        String urlAPI = "http://192.168.1.3:3001/api/v1/product/?brandID=2";
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject dataObj = new JSONObject(response);
+                            JSONArray dataArray = dataObj.getJSONArray("Data");
+                            Log.v("tag", dataArray.toString());
+                            List<CompletableFuture<Void>> imageFutures = new ArrayList<>();
+
+                            for (int i = 0; i < dataArray.length(); i++) {
+                                JSONObject productObj = dataArray.getJSONObject(i);
+                                Log.v("product", productObj.toString());
+                                String imgName = productObj.getString("Image");
+                                String title = productObj.getString("Name");
+                                String price = productObj.getString("Price");
+                                String rating = productObj.getString("Favorite");
+
+                                // Create a CompletableFuture for each image retrieval task
+                                CompletableFuture<Void> imageFuture = CompletableFuture.runAsync(() -> {
+                                    getProductImage(imgName, new ImageResponseCallback() {
+                                        @Override
+                                        public void onImageReceived(Bitmap bitmap) {
+                                            ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating);
+                                            iphoneProductList.add(product);
+                                            productRV = binding.productRecycleView;
+                                            productRVAdapter = new ProductRVAdapter(getContext(),iphoneProductList);
+                                            productRVAdapter.notifyDataSetChanged();
+                                            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
+                                            productRV.setAdapter(productRVAdapter);
+                                            productRV.setLayoutManager(linearLayoutManager);
+                                        }
+
+                                        @Override
+                                        public void onError(String errorMessage) {
+                                            Log.e("API Error", errorMessage);
+                                        }
+                                    });
+                                });
+
+                                imageFutures.add(imageFuture);
+                            }
+
+                            // Wait for all the image retrieval tasks to complete
+                            CompletableFuture<Void> allImagesFuture = CompletableFuture.allOf(imageFutures.toArray(new CompletableFuture[0]));
+
+                            // Add a callback to update RecyclerView when all images are fetched
+                            allImagesFuture.thenAccept(result -> {
+                                Log.v("list", iphoneProductList.toString());
+                                // Update the RecyclerView once all images are fetched
+                                productRV = binding.productRecycleView;
+                                productRVAdapter = new ProductRVAdapter(getContext(),iphoneProductList);
+                                productRVAdapter.notifyDataSetChanged();
+                                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
+                                productRV.setAdapter(productRVAdapter);
+                                productRV.setLayoutManager(linearLayoutManager);
+                            }).exceptionally(throwable -> {
+                                // Handle exceptions (if any) during the image retrieval process
+                                throwable.printStackTrace();
+                                return null;
+                            });
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.v("Error api ne", error.toString());
+            }
+        });
+
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        queue.add(stringRequest);
+    }
+
+//public void getIphoneProducts() {
+//    // Instantiate the RequestQueue.
+//    RequestQueue queue = Volley.newRequestQueue(getActivity());
+//    String urlAPI = "http://172.25.64.1:3001/api/v1/product/?brandID=2";
 //
-//        // Request a string response from the provided URL.
-//        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
-//                new Response.Listener<String>() {
-//                    @Override
-//                    public void onResponse(String response) {
-//                        // Display the first 500 characters of the response string.
-//                        try {
-//                            JSONObject dataObj = new JSONObject(response);
-//                            JSONArray dataArray = dataObj.getJSONArray("Data");
+//    // Request a string response from the provided URL.
+//    StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
+//            new Response.Listener<String>() {
+//                @Override
+//                public void onResponse(String response) {
+//                    try {
+//                        JSONObject dataObj = new JSONObject(response);
+//                        JSONArray dataArray = dataObj.getJSONArray("Data");
 //
-//                            for (int i = 0; i < dataArray.length(); i++) {
-//                                JSONObject productObj = dataArray.getJSONObject(i);
-//                                String imgName = productObj.getString("Image");
-//                                String title = productObj.getString("Name");
-//                                String price = productObj.getString("Price");
-//                                String rating = productObj.getString("Favorite");
+//                        List<CompletableFuture<Void>> imageFutures = new ArrayList<>();
+//
+//                        for (int i = 0; i < dataArray.length(); i++) {
+//                            JSONObject productObj = dataArray.getJSONObject(i);
+//                            String imgName = productObj.getString("Image");
+//                            String title = productObj.getString("Name");
+//                            String price = productObj.getString("Price");
+//                            String rating = productObj.getString("Favorite");
+//
+//                            // Create a CompletableFuture for each image retrieval task
+//                            CompletableFuture<Void> imageFuture = CompletableFuture.runAsync(() -> {
 //                                getProductImage(imgName, new ImageResponseCallback() {
 //                                    @Override
 //                                    public void onImageReceived(Bitmap bitmap) {
-//                                        Log.v("anh", bitmap.toString());
 //                                        ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating);
-//                                        Log.v("product", product.title);
 //                                        iphoneProductList.add(product);
-//
 //                                    }
 //
 //                                    @Override
@@ -256,93 +341,34 @@ public class FragmentHome extends Fragment {
 //                                        Log.e("API Error", errorMessage);
 //                                    }
 //                                });
-//                            }
-//                            Log.v("cc", iphoneProductList.toString());
+//                            });
 //
-//
-//                        } catch (JSONException e) {
-//                            throw new RuntimeException(e);
+//                            imageFutures.add(imageFuture);
 //                        }
+//
+//                        // Wait for all the image retrieval tasks to complete
+//                        CompletableFuture<Void> allImagesFuture = CompletableFuture.allOf(imageFutures.toArray(new CompletableFuture[0]));
+//                        allImagesFuture.get(); // This will block until all image tasks are completed
+//
+//                        // Update the RecyclerView once all images are fetched
 //                        productRV = binding.productRecycleView;
 //                        productRVAdapter = new ProductRVAdapter(iphoneProductList);
 //                        productRVAdapter.notifyDataSetChanged();
 //                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
 //                        productRV.setAdapter(productRVAdapter);
 //                        productRV.setLayoutManager(linearLayoutManager);
+//
+//                    } catch (JSONException | InterruptedException | ExecutionException e) {
+//                        e.printStackTrace();
 //                    }
-//                }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                Log.v("Error api ne", error.toString());
-//            }
-//        });
-//        queue.add(stringRequest);
-//    }
-public void getIphoneProducts() {
-    // Instantiate the RequestQueue.
-    RequestQueue queue = Volley.newRequestQueue(getActivity());
-    String urlAPI = "http://172.25.64.1:3001/api/v1/product/?brandID=2";
-
-    // Request a string response from the provided URL.
-    StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
-            new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    try {
-                        JSONObject dataObj = new JSONObject(response);
-                        JSONArray dataArray = dataObj.getJSONArray("Data");
-
-                        List<CompletableFuture<Void>> imageFutures = new ArrayList<>();
-
-                        for (int i = 0; i < dataArray.length(); i++) {
-                            JSONObject productObj = dataArray.getJSONObject(i);
-                            String imgName = productObj.getString("Image");
-                            String title = productObj.getString("Name");
-                            String price = productObj.getString("Price");
-                            String rating = productObj.getString("Favorite");
-
-                            // Create a CompletableFuture for each image retrieval task
-                            CompletableFuture<Void> imageFuture = CompletableFuture.runAsync(() -> {
-                                getProductImage(imgName, new ImageResponseCallback() {
-                                    @Override
-                                    public void onImageReceived(Bitmap bitmap) {
-                                        ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating);
-                                        iphoneProductList.add(product);
-                                    }
-
-                                    @Override
-                                    public void onError(String errorMessage) {
-                                        Log.e("API Error", errorMessage);
-                                    }
-                                });
-                            });
-
-                            imageFutures.add(imageFuture);
-                        }
-
-                        // Wait for all the image retrieval tasks to complete
-                        CompletableFuture<Void> allImagesFuture = CompletableFuture.allOf(imageFutures.toArray(new CompletableFuture[0]));
-                        allImagesFuture.get(); // This will block until all image tasks are completed
-
-                        // Update the RecyclerView once all images are fetched
-                        productRV = binding.productRecycleView;
-                        productRVAdapter = new ProductRVAdapter(iphoneProductList);
-                        productRVAdapter.notifyDataSetChanged();
-                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
-                        productRV.setAdapter(productRVAdapter);
-                        productRV.setLayoutManager(linearLayoutManager);
-
-                    } catch (JSONException | InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }, new Response.ErrorListener() {
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            Log.v("Error api ne", error.toString());
-        }
-    });
-    queue.add(stringRequest);
-}
+//                }
+//            }, new Response.ErrorListener() {
+//        @Override
+//        public void onErrorResponse(VolleyError error) {
+//            Log.v("Error api ne", error.toString());
+//        }
+//    });
+//    queue.add(stringRequest);
+//}
 
 }
