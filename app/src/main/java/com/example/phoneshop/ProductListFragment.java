@@ -34,23 +34,26 @@ import com.example.phoneshop.databinding.FragmentProductListBinding;
 
 import org.chromium.net.CronetEngine;
 import org.chromium.net.UrlRequest;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ProductListFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class ProductListFragment extends Fragment {
+
+public class ProductListFragment extends Fragment  {
 
     FragmentProductListBinding binding;
     ArrayList<ProductRVItemClass> data = new ArrayList<>();
+
+    ArrayList<Category> cate = new ArrayList<>();
     ProductRVAdapter productRVAdapter;
     RecyclerView productRV;
-
+    Constant constant = new Constant();
     //Spinner
     ListView myListview;
     Spinner mySpinner;
@@ -105,29 +108,38 @@ public class ProductListFragment extends Fragment {
         }
     }
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+
+    class Category {
+        private int categoryID;
+        private  String CategoryName;
+
+        public int getCategoryID() {
+            return categoryID;
+        }
+
+        public void setCategoryID(int categoryID) {
+            this.categoryID = categoryID;
+        }
+
+        public String getCategoryName() {
+            return CategoryName;
+        }
+
+        public void setCategoryName(String categoryName) {
+            CategoryName = categoryName;
+        }
+    }
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
 
-    // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     public ProductListFragment() {
-        // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ProductListFragment.
-     */
-    // TODO: Rename and change types and number of parameters
+
     public static ProductListFragment newInstance(String param1, String param2) {
         ProductListFragment fragment = new ProductListFragment();
         Bundle args = new Bundle();
@@ -145,7 +157,6 @@ public class ProductListFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-//        getProductApi();
         Log.v("vcc", "goi api");
     }
    private  void initializeView(){
@@ -179,14 +190,10 @@ public class ProductListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        getProducts();
+        getCategories();
         productRV = binding.rv;
-//        getProductApi();
-        productRVAdapter = new ProductRVAdapter(data, new ProductRVAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClicked(ProductRVItemClass product) {
-                Log.v("test", "rest");
-            }
-        });
+        productRVAdapter = new ProductRVAdapter(getContext(),data);
         productRVAdapter.notifyDataSetChanged();
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         productRV.setAdapter(productRVAdapter);
@@ -196,28 +203,176 @@ public class ProductListFragment extends Fragment {
     }
 
 
-    private RequestQueue mRequestQueue;
-    private StringRequest mStringRequest;
-    private String url = "http://192.168.1.3:3001/api/v1/product/?brandID=2";
 
-    private void getData() {
-        // RequestQueue initialized
-        mRequestQueue = Volley.newRequestQueue(getActivity());
 
-        // String Request initialized
-        mStringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Log.v("test", response.toString());
-            }
-        }, new Response.ErrorListener() {
+    public void getProductImage(String imgName, ImageResponseCallback callback) {
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        String url = "http://"+constant.idAddress+"/api/v1/product/image/" + imgName;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject dataObj = new JSONObject(response);
+//                            Log.v("img",dataObj.toString());
+                            JSONObject data = dataObj.getJSONObject("Data");
+                            String img64 = data.getString("Base64");
+                            byte[] decodedString = Base64.decode(img64, Base64.DEFAULT);
+                            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                            callback.onImageReceived(decodedByte);
+                            Log.v("img", decodedByte.toString());
+                        } catch (JSONException e) {
+                            callback.onError("Error parsing JSON");
+                        }
+                    }
+                }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.v("test", error.toString());
+                callback.onError("Error fetching image from API");
             }
         });
 
-        mRequestQueue.add(mStringRequest);
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
+
+    public void getProducts() {
+        // Instantiate the RequestQueue.
+//        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        String urlAPI = "http://"+constant.idAddress+"/api/v1/product/?brandID=2";
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject dataObj = new JSONObject(response);
+                            JSONArray dataArray = dataObj.getJSONArray("Data");
+                            Log.v("tag", dataArray.toString());
+                            List<CompletableFuture<Void>> imageFutures = new ArrayList<>();
+
+                            for (int i = 0; i < dataArray.length(); i++) {
+                                JSONObject productObj = dataArray.getJSONObject(i);
+                                Log.v("product", productObj.toString());
+                                String imgName = productObj.getString("Image");
+                                String title = productObj.getString("Name");
+                                String price = productObj.getString("Price");
+                                String rating = productObj.getString("Favorite");
+
+                                // Create a CompletableFuture for each image retrieval task
+                                CompletableFuture<Void> imageFuture = CompletableFuture.runAsync(() -> {
+                                    getProductImage(imgName, new ImageResponseCallback() {
+                                        @Override
+                                        public void onImageReceived(Bitmap bitmap) {
+                                            ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating);
+                                            data.add(product);
+                                            Log.d("onImageReceived", data.toString());
+                                            productRV = binding.rv;
+                                            productRVAdapter = new ProductRVAdapter(getContext(),data);
+                                            productRVAdapter.notifyDataSetChanged();
+                                            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
+                                            productRV.setAdapter(productRVAdapter);
+                                            productRV.setLayoutManager(linearLayoutManager);
+                                        }
+
+                                        @Override
+                                        public void onError(String errorMessage) {
+                                            Log.e("API Error", errorMessage);
+                                        }
+                                    });
+                                });
+
+                                imageFutures.add(imageFuture);
+                            }
+
+                            // Wait for all the image retrieval tasks to complete
+                            CompletableFuture<Void> allImagesFuture = CompletableFuture.allOf(imageFutures.toArray(new CompletableFuture[0]));
+
+                            // Add a callback to update RecyclerView when all images are fetched
+                            allImagesFuture.thenAccept(result -> {
+                                Log.v("list", data.toString());
+                                // Update the RecyclerView once all images are fetched
+                                productRV = binding.rv;
+                                productRVAdapter = new ProductRVAdapter(getContext(),data);
+                                productRVAdapter.notifyDataSetChanged();
+                                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
+                                productRV.setAdapter(productRVAdapter);
+                                productRV.setLayoutManager(linearLayoutManager);
+                            }).exceptionally(throwable -> {
+                                // Handle exceptions (if any) during the image retrieval process
+                                throwable.printStackTrace();
+                                return null;
+                            });
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.v("Error api ne", error.toString());
+            }
+        });
+
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        queue.add(stringRequest);
+    }
+
+    public void getCategories() {
+        // Instantiate the RequestQueue.
+//        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        String urlAPI = "http://"+constant.idAddress+"/api/v1/category";
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject dataObj = new JSONObject(response);
+                            JSONArray dataArray = dataObj.getJSONArray("Data");
+                            Log.v("tag", dataArray.toString());
+
+                            for (int i = 0; i < dataArray.length(); i++) {
+                                JSONObject cate = dataArray.getJSONObject(i);
+                                Log.v("cate", cate.toString());
+                                String categoryID = cate.getString("CategoyID");
+                                String categoryName = cate.getString("CategoryName");
+
+
+                            }
+
+                            // Wait for all the image retrieval tasks to complete
+
+                            // Add a callback to update RecyclerView when all images are fetched
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.v("Error api ne", error.toString());
+            }
+        });
+
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        queue.add(stringRequest);
+    }
+
+
+
+
+
+
+
+
 
 }
