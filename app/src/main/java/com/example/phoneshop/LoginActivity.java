@@ -1,6 +1,7 @@
 package com.example.phoneshop;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.Bundle;
@@ -11,7 +12,16 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.phoneshop.databinding.ActivityLoginBinding;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -34,17 +44,16 @@ public class LoginActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
 
-        readInternal();
+        sharedPreferences = getSharedPreferences("user_info", MODE_PRIVATE);
+
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        if (sharedPreferences.contains("userID")){
+            startActivity(intent);
+        }
 
         username = binding.userText;
         password = binding.passwordText;
         submitBtn = binding.btnLogin;
-
-        sharedPreferences = getSharedPreferences("user_info", MODE_PRIVATE);
-//        intent = new Intent(MainActivity.this, test.class);
-//        if (sharedPreferences.contains("username") && sharedPreferences.contains("password")){
-//            startActivity(intent);
-//        }
 
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,59 +61,76 @@ public class LoginActivity extends AppCompatActivity {
                 String enteredUsername = username.getText().toString();
                 String enteredPassword = password.getText().toString();
 
-                // Check if the entered username and password match any account in the list
-                boolean isValidAccount = false;
-                for (AccountClass account : accounts) {
-                    if (enteredUsername.equals(account.getUserName()) && enteredPassword.equals(account.getPassword())) {
-                        isValidAccount = true;
-                        break;
-                    }
-                }
-
-                if (isValidAccount) {
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putString("username", enteredUsername);
-                    editor.putString("password", enteredPassword);
-                    editor.apply(); // Use apply() for asynchronous saving to SharedPreferences
-                    Toast.makeText(LoginActivity.this, "LOGIN SUCCESS !!!", Toast.LENGTH_SHORT).show();
-                    // Handle successful login here, e.g., start the next activity
-                    // startActivity(intent);
-                } else {
-                    // Incorrect credentials
-                    Toast.makeText(LoginActivity.this, "LOGIN FAILED !!!", Toast.LENGTH_SHORT).show();
-                }
+                login(enteredUsername, enteredPassword);
             }
         });
     }
 
+    public void login(String username, String password) {
+        String endPoint = "http://10.0.2.2:3001/api/v1/user/login";
 
-    public void readInternal() {
-        Context context = getApplicationContext();
-        AssetManager assetManager = context.getAssets();
+        // Create the login request body as a JSON object
+        JSONObject requestBody = new JSONObject();
         try {
-
-            InputStream inputStream = assetManager.open("accounts.txt");
-            InputStreamReader isr = new InputStreamReader(inputStream);
-            BufferedReader brr = new BufferedReader(isr);
-
-            while (true) {
-                String username = brr.readLine();
-                if (username == null) {
-                    break;
-                }
-                String password = brr.readLine();
-                AccountClass account = new AccountClass(username, password);
-                accounts.add(account);
-            }
-            brr.close();
-            isr.close();
-            inputStream.close();
-
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            requestBody.put("UserName", username);
+            requestBody.put("Password", password);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
         }
 
+        // Create a Volley request queue
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        // Create the login request using JsonObjectRequest
+        JsonObjectRequest loginRequest = new JsonObjectRequest(Request.Method.POST, endPoint, requestBody,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            int code = response.getInt("Code");
+                            if (code == 200) {
+                                JSONObject dataObject = response.getJSONObject("Data");
+                                String token = dataObject.getString("Token");
+                                String refreshToken = dataObject.getString("RefreshToken");
+                                String csrfToken = dataObject.getString("CsrfToken");
+
+                                int userID = dataObject.getJSONObject("User").getInt("UserID");
+                                String userName = dataObject.getJSONObject("User").getString("UserName");
+                                String email = dataObject.getJSONObject("User").getString("Email");
+
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString("token", token);
+                                editor.putInt("userID", userID);
+                                editor.putString("userName", userName);
+                                editor.putString("email", email);
+                                editor.putString("refreshToken", refreshToken);
+                                editor.putString("csrfToken", csrfToken);
+                                editor.apply();
+
+                                Toast.makeText(LoginActivity.this, "LOGIN SUCCESS!", Toast.LENGTH_SHORT).show();
+
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                startActivity(intent);
+                            } else {
+                                String message = response.getString("Msg");
+                                Toast.makeText(LoginActivity.this, "LOGIN FAILED: " + message, Toast.LENGTH_SHORT).show();
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                        Toast.makeText(LoginActivity.this, "LOGIN FAILED!" + error, Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        requestQueue.add(loginRequest);
     }
+
 }
