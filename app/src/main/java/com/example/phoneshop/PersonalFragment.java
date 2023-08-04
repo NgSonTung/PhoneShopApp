@@ -25,7 +25,7 @@ import com.example.phoneshop.databinding.FragmentPersonalBinding;
 public class PersonalFragment extends Fragment {
     FragmentPersonalBinding binding;
 
-
+    LinearLayout logoutBtn;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -71,7 +71,7 @@ public class PersonalFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentPersonalBinding.inflate(inflater, container, false);
-        LinearLayout logoutBtn = binding.logout;
+        logoutBtn = binding.logout;
 
         logoutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,6 +89,6 @@ public class PersonalFragment extends Fragment {
         });
 
 
-        return inflater.inflate(R.layout.fragment_personal, container, false);
+        return binding.getRoot();
     }
 }
