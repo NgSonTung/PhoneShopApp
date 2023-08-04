@@ -36,6 +36,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -310,10 +311,15 @@ public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemCli
 
     // Method to replace the fragment in the 'productdetailfrag' container
     private void openDetailFragment(ProductRVItemClass product) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        product.getImageID().compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] byteArray = stream.toByteArray();
+
         Fragment fmg = new Fragment_Details();
         FragmentActivity activity = getActivity();
         Bundle bundle = new Bundle();
         bundle.putString("product_name", product.getTitle());
+        bundle.putByteArray("img_byte", byteArray);
         bundle.putString("price", product.getPrice());
         bundle.putString("rating", product.getRating());
         fmg.setArguments(bundle);
@@ -321,7 +327,7 @@ public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemCli
         FragmentManager  fragmentManager = activity.getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setReorderingAllowed(true);
-        transaction.replace(R.id.homeFragment, fmg);
+        transaction.replace(R.id.layoutFragment, fmg);
         transaction.addToBackStack(null);
         transaction.commit();
     }

@@ -1,5 +1,7 @@
 package com.example.phoneshop;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -8,9 +10,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.example.phoneshop.databinding.FragmentDetailsBinding;
 
@@ -74,5 +78,21 @@ public class Fragment_Details extends Fragment {
         subImgRV.setAdapter(subImgRVAdapter);
         LinearLayoutManager subImgManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL,false);
         subImgRV.setLayoutManager(subImgManager);
+
+        Bundle args = getArguments();
+        if (args != null) {
+            byte[] byteArray = args.getByteArray("img_byte");
+            String productName = args.getString("product_name");
+            String price = args.getString("product_name");
+            String rating = args.getString("rating");
+            Log.v("data", args.toString());
+            // Convert the byte[] back to Bitmap
+            Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+
+            // Now, you can use the bitmap as needed.
+            // For example, you can display it in an ImageView:
+//            ImageView imageView = .findViewById(R.id.imageView);
+//            imageView.setImageBitmap(bitmap);
+        }
     }
 }
