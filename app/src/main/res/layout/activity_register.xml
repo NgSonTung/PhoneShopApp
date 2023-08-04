@@ -35,48 +35,57 @@
             android:paddingRight="40dp">
 
             <EditText
-                android:id="@+id/editTextText"
+                android:id="@+id/usernameTxt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:ems="10"
-                android:inputType="text"
-                android:text="USERNAME" />
+                android:hint="USERNAME"
+                android:inputType="text" />
 
             <EditText
-                android:id="@+id/editTextText2"
+                android:id="@+id/emailTxt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:ems="10"
-                android:inputType="text"
-                android:text="EMAIL" />
+                android:hint="EMAIL"
+                android:inputType="textEmailAddress" />
 
             <EditText
-                android:id="@+id/editTextText3"
+                android:id="@+id/passwordTxt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:ems="10"
-                android:inputType="text"
-                android:text="PASSWORD" />
+                android:hint="PASSWORD"
+                android:inputType="textPassword" />
 
             <EditText
-                android:id="@+id/editTextText4"
+                android:id="@+id/repeatTxt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:ems="10"
-                android:inputType="text"
-                android:text="REPEAT PASSWORD" />
+                android:hint="REPEAT PASSWORD"
+                android:inputType="textPassword" />
 
             <Button
-                android:id="@+id/button"
+                android:id="@+id/btnRegister"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:shadowColor="#CDDC39"
                 android:text="REGISTER" />
+
+            <Button
+                android:id="@+id/btnLogin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:backgroundTint="#FFFFFF"
+                android:text="LOGIN"
+                android:textColor="@color/black" />
 
             <TextView
                 android:id="@+id/textView11"

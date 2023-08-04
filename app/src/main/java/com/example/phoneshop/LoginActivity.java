@@ -33,7 +33,7 @@ import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
     TextView username, password;
-    Button submitBtn;
+    Button submitBtn, registerBtn;
     SharedPreferences sharedPreferences;
     List<AccountClass> accounts = new ArrayList<>();
 
@@ -54,6 +54,15 @@ public class LoginActivity extends AppCompatActivity {
         username = binding.userText;
         password = binding.passwordText;
         submitBtn = binding.btnLogin;
+        registerBtn = binding.btnRegis;
+
+        registerBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(intent);
+            }
+        });
 
         submitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
