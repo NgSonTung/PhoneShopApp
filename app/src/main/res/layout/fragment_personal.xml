@@ -78,5 +78,39 @@
                 app:srcCompat="@drawable/chevron_right_solid"
                 tools:src="@tools:sample/avatars" />
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/logout"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:background="@drawable/customborder"
+            android:orientation="horizontal"
+            android:padding="0dp">
+
+            <ImageView
+                android:layout_width="10dp"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:scaleType="centerInside"
+                android:src="@drawable/logout" />
+
+            <TextView
+                android:layout_width="10dp"
+                android:layout_height="60dp"
+                android:layout_weight="7"
+                android:gravity="center_vertical"
+                android:text="Đăng xuất"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:scaleType="centerInside"
+                android:scaleX=".6"
+                android:scaleY=".6"
+                app:srcCompat="@drawable/chevron_right_solid"
+                tools:src="@tools:sample/avatars" />
+        </LinearLayout>
     </LinearLayout>
 </FrameLayout>

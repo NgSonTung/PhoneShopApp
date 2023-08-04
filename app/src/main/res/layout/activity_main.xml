@@ -57,7 +57,7 @@
                     android:id="@+id/homeFragment"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:name="com.example.phoneshop.OrderFragment" />
+                    android:name="com.example.phoneshop.PersonalFragment" />
             </LinearLayout>
         </ScrollView>
 

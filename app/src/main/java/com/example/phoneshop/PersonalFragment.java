@@ -1,5 +1,8 @@
 package com.example.phoneshop;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -7,6 +10,12 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.Toast;
+
+import com.example.phoneshop.databinding.FragmentHomeBinding;
+import com.example.phoneshop.databinding.FragmentPersonalBinding;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -14,6 +23,8 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class PersonalFragment extends Fragment {
+    FragmentPersonalBinding binding;
+
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -59,6 +70,25 @@ public class PersonalFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        binding = FragmentPersonalBinding.inflate(inflater, container, false);
+        LinearLayout logoutBtn = binding.logout;
+
+        logoutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user_info", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.clear();
+                editor.apply();
+
+                Toast.makeText(getContext(), "LOGGED OUT: ", Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
         return inflater.inflate(R.layout.fragment_personal, container, false);
     }
 }
