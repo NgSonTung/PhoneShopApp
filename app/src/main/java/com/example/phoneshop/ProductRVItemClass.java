@@ -10,6 +10,8 @@ public class ProductRVItemClass {
     String price;
     String rating;
 
+    String description;
+
     public String getRating() {
         return rating;
     }
@@ -43,20 +45,28 @@ public class ProductRVItemClass {
         this.price = price;
     }
 
-    public ProductRVItemClass(Bitmap imageID, String title, String price, String rating) {
+    public ProductRVItemClass(Bitmap imageID, String title, String price, String rating, String description) {
         this.imageID = imageID;
         this.title = title;
         this.price = price;
         this.rating = rating;
+        this.description = description;
     }
 
+    public String getDescription() {
+        return description;
+    }
 
-    public static ArrayList<ProductRVItemClass> initData(Bitmap[] imageList, String[] titleList, String[] priceList, String[] rating) {
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public static ArrayList<ProductRVItemClass> initData(Bitmap[] imageList, String[] titleList, String[] priceList, String[] rating, String[] description) {
 
         ArrayList<ProductRVItemClass> arrList = new ArrayList<>();
 
         for (int i = 0; i < titleList.length; i++) {
-            ProductRVItemClass item = new ProductRVItemClass(imageList[i], titleList[i], priceList[i], rating[i]);
+            ProductRVItemClass item = new ProductRVItemClass(imageList[i], titleList[i], priceList[i], rating[i], description[i]);
             arrList.add(item);
         }
         return arrList;

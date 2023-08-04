@@ -29,12 +29,18 @@
             android:textSize="22sp"
             android:textStyle="bold" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/detailRVMain"
+        <ImageView
+            android:id="@+id/main_img"
             android:layout_width="match_parent"
-            android:layout_height="319dp">
+            android:layout_height="wrap_content"
+            tools:src="@drawable/productimg" />
 
-        </androidx.recyclerview.widget.RecyclerView>
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/detailRVMain"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="319dp">-->
+
+<!--        </androidx.recyclerview.widget.RecyclerView>-->
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/detailRVSub"
@@ -74,7 +80,7 @@
                 android:inputType="number" />
 
             <TextView
-                android:id="@+id/textView8"
+                android:id="@+id/product_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="30dp"

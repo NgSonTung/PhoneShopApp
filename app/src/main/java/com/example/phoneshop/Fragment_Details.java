@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.phoneshop.databinding.FragmentDetailsBinding;
 
@@ -35,6 +36,11 @@ public class Fragment_Details extends Fragment {
 
     ProductImgRVAdapter productImgRVAdapter;
     SubImgRVAdapter subImgRVAdapter;
+
+    ImageView main_img;
+    TextView detailDescription;
+    TextView detailTitle;
+    TextView product_price;
 
     ArrayList<Integer> imgList = new ArrayList<Integer>();
     public Fragment_Details() {
@@ -65,14 +71,16 @@ public class Fragment_Details extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        productImgRV = binding.detailRVMain;
+//        productImgRV = binding.detailRVMain;
         subImgRV = binding.detailRVSub;
         imgList = new ArrayList<>(Arrays.asList(R.drawable.productimg, R.drawable.productimg, R.drawable.productimg, R.drawable.productimg, R.drawable.productimg, R.drawable.productimg));
-        productImgRVAdapter = new ProductImgRVAdapter(imgList);
-        productImgRVAdapter.notifyDataSetChanged();
-        LinearLayoutManager productImgManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL,false);
-        productImgRV.setAdapter(productImgRVAdapter);
-        productImgRV.setLayoutManager(productImgManager);
+
+//        productImgRVAdapter = new ProductImgRVAdapter(imgList);
+////        productImgRVAdapter.notifyDataSetChanged();
+////        LinearLayoutManager productImgManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL,false);
+////        productImgRV.setAdapter(productImgRVAdapter);
+////        productImgRV.setLayoutManager(productImgManager);
+
         subImgRVAdapter = new SubImgRVAdapter(imgList);
         subImgRVAdapter.notifyDataSetChanged();
         subImgRV.setAdapter(subImgRVAdapter);
@@ -83,11 +91,21 @@ public class Fragment_Details extends Fragment {
         if (args != null) {
             byte[] byteArray = args.getByteArray("img_byte");
             String productName = args.getString("product_name");
-            String price = args.getString("product_name");
+            String price = args.getString("price");
             String rating = args.getString("rating");
+            String description = args.getString("description");
             Log.v("data", args.toString());
             // Convert the byte[] back to Bitmap
             Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+
+            main_img = view.findViewById(R.id.main_img);
+            detailDescription = view.findViewById(R.id.detailDescription);
+            detailTitle = view.findViewById(R.id.detailTitle);
+            main_img.setImageBitmap(bitmap);
+            detailDescription.setText(description);
+            detailTitle.setText(productName);
+            product_price = view.findViewById(R.id.product_price);
+            product_price.setText(price);
 
             // Now, you can use the bitmap as needed.
             // For example, you can display it in an ImageView:

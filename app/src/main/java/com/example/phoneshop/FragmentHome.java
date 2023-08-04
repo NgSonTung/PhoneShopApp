@@ -233,13 +233,14 @@ public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemCli
                                 String title = productObj.getString("Name");
                                 String price = productObj.getString("Price");
                                 String rating = productObj.getString("Favorite");
+                                String description = productObj.getString("Description");
 
                                 // Create a CompletableFuture for each image retrieval task
                                 CompletableFuture<Void> imageFuture = CompletableFuture.runAsync(() -> {
                                     getProductImage(imgName, new ImageResponseCallback() {
                                         @Override
                                         public void onImageReceived(Bitmap bitmap) {
-                                            ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating);
+                                            ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating, description);
                                             iphoneProductList.add(product);
                                             productRV = binding.productRecycleView;
                                             productRVAdapter = new ProductRVAdapter(iphoneProductList, new ProductRVAdapter.OnItemClickListener() {
@@ -322,6 +323,7 @@ public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemCli
         bundle.putByteArray("img_byte", byteArray);
         bundle.putString("price", product.getPrice());
         bundle.putString("rating", product.getRating());
+        bundle.putString("description", product.getDescription());
         fmg.setArguments(bundle);
 
         FragmentManager  fragmentManager = activity.getSupportFragmentManager();
