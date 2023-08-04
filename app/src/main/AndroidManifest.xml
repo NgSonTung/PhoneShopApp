@@ -30,6 +30,9 @@
             android:name=".RegisterActivity"
             android:exported="false" />
         <activity
+            android:name=".FavoriteProductsFragment"
+            android:exported="false" />
+        <activity
             android:name=".HomeFragment"
             android:exported="false" />
         <activity

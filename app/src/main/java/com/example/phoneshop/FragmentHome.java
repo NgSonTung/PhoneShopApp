@@ -7,6 +7,9 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
@@ -37,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class FragmentHome extends Fragment {
+public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemClickListener {
     FragmentHomeBinding binding;
     Constant constantVar = new Constant();
     //Slider
@@ -100,14 +103,6 @@ public class FragmentHome extends Fragment {
 
         // Product Slider
         getIphoneProducts();
-        Log.v("list product", iphoneProductList.toString());
-//        productRV = binding.productRecycleView;
-//        productRVAdapter = new ProductRVAdapter(iphoneProductList);
-//        productRVAdapter.notifyDataSetChanged();
-//        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
-//        productRV.setAdapter(productRVAdapter);
-//        productRV.setLayoutManager(linearLayoutManager);
-
         // Brand Slider
         brandRV = binding.brandRecycleView;
         brandRVInit();
@@ -246,9 +241,14 @@ public class FragmentHome extends Fragment {
                                             ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating);
                                             iphoneProductList.add(product);
                                             productRV = binding.productRecycleView;
-                                            productRVAdapter = new ProductRVAdapter(getContext(),iphoneProductList);
+                                            productRVAdapter = new ProductRVAdapter(iphoneProductList, new ProductRVAdapter.OnItemClickListener() {
+                                                @Override
+                                                public void onItemClicked(ProductRVItemClass product) {
+                                                    openDetailFragment(product);
+                                                }
+                                            });
                                             productRVAdapter.notifyDataSetChanged();
-                                            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
+                                            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
                                             productRV.setAdapter(productRVAdapter);
                                             productRV.setLayoutManager(linearLayoutManager);
                                         }
@@ -263,24 +263,29 @@ public class FragmentHome extends Fragment {
                                 imageFutures.add(imageFuture);
                             }
 
-                            // Wait for all the image retrieval tasks to complete
-                            CompletableFuture<Void> allImagesFuture = CompletableFuture.allOf(imageFutures.toArray(new CompletableFuture[0]));
-
-                            // Add a callback to update RecyclerView when all images are fetched
-                            allImagesFuture.thenAccept(result -> {
-                                Log.v("list", iphoneProductList.toString());
-                                // Update the RecyclerView once all images are fetched
-                                productRV = binding.productRecycleView;
-                                productRVAdapter = new ProductRVAdapter(getContext(),iphoneProductList);
-                                productRVAdapter.notifyDataSetChanged();
-                                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
-                                productRV.setAdapter(productRVAdapter);
-                                productRV.setLayoutManager(linearLayoutManager);
-                            }).exceptionally(throwable -> {
-                                // Handle exceptions (if any) during the image retrieval process
-                                throwable.printStackTrace();
-                                return null;
-                            });
+//                            // Wait for all the image retrieval tasks to complete
+//                            CompletableFuture<Void> allImagesFuture = CompletableFuture.allOf(imageFutures.toArray(new CompletableFuture[0]));
+//
+//                            // Add a callback to update RecyclerView when all images are fetched
+//                            allImagesFuture.thenAccept(result -> {
+//                                Log.v("list", iphoneProductList.toString());
+//                                // Update the RecyclerView once all images are fetched
+//                                productRV = binding.productRecycleView;
+//                                productRVAdapter = new ProductRVAdapter(iphoneProductList, new ProductRVAdapter.OnItemClickListener() {
+//                                    @Override
+//                                    public void onItemClicked(ProductRVItemClass product) {
+//                                        openDetailFragment(product);
+//                                    }
+//                                });
+//                                productRVAdapter.notifyDataSetChanged();
+//                                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
+//                                productRV.setAdapter(productRVAdapter);
+//                                productRV.setLayoutManager(linearLayoutManager);
+//                            }).exceptionally(throwable -> {
+//                                // Handle exceptions (if any) during the image retrieval process
+//                                throwable.printStackTrace();
+//                                return null;
+//                            });
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -297,71 +302,28 @@ public class FragmentHome extends Fragment {
         queue.add(stringRequest);
     }
 
-//public void getIphoneProducts() {
-//    // Instantiate the RequestQueue.
-//    RequestQueue queue = Volley.newRequestQueue(getActivity());
-//    String urlAPI = "http://172.25.64.1:3001/api/v1/product/?brandID=2";
-//
-//    // Request a string response from the provided URL.
-//    StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
-//            new Response.Listener<String>() {
-//                @Override
-//                public void onResponse(String response) {
-//                    try {
-//                        JSONObject dataObj = new JSONObject(response);
-//                        JSONArray dataArray = dataObj.getJSONArray("Data");
-//
-//                        List<CompletableFuture<Void>> imageFutures = new ArrayList<>();
-//
-//                        for (int i = 0; i < dataArray.length(); i++) {
-//                            JSONObject productObj = dataArray.getJSONObject(i);
-//                            String imgName = productObj.getString("Image");
-//                            String title = productObj.getString("Name");
-//                            String price = productObj.getString("Price");
-//                            String rating = productObj.getString("Favorite");
-//
-//                            // Create a CompletableFuture for each image retrieval task
-//                            CompletableFuture<Void> imageFuture = CompletableFuture.runAsync(() -> {
-//                                getProductImage(imgName, new ImageResponseCallback() {
-//                                    @Override
-//                                    public void onImageReceived(Bitmap bitmap) {
-//                                        ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating);
-//                                        iphoneProductList.add(product);
-//                                    }
-//
-//                                    @Override
-//                                    public void onError(String errorMessage) {
-//                                        Log.e("API Error", errorMessage);
-//                                    }
-//                                });
-//                            });
-//
-//                            imageFutures.add(imageFuture);
-//                        }
-//
-//                        // Wait for all the image retrieval tasks to complete
-//                        CompletableFuture<Void> allImagesFuture = CompletableFuture.allOf(imageFutures.toArray(new CompletableFuture[0]));
-//                        allImagesFuture.get(); // This will block until all image tasks are completed
-//
-//                        // Update the RecyclerView once all images are fetched
-//                        productRV = binding.productRecycleView;
-//                        productRVAdapter = new ProductRVAdapter(iphoneProductList);
-//                        productRVAdapter.notifyDataSetChanged();
-//                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
-//                        productRV.setAdapter(productRVAdapter);
-//                        productRV.setLayoutManager(linearLayoutManager);
-//
-//                    } catch (JSONException | InterruptedException | ExecutionException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }, new Response.ErrorListener() {
-//        @Override
-//        public void onErrorResponse(VolleyError error) {
-//            Log.v("Error api ne", error.toString());
-//        }
-//    });
-//    queue.add(stringRequest);
-//}
+    // Implement the onItemClick method from the interface
+    @Override
+    public void onItemClicked(ProductRVItemClass product) {
+        openDetailFragment(product);
+    }
+
+    // Method to replace the fragment in the 'productdetailfrag' container
+    private void openDetailFragment(ProductRVItemClass product) {
+        Fragment fmg = new Fragment_Details();
+        FragmentActivity activity = getActivity();
+        Bundle bundle = new Bundle();
+        bundle.putString("product_name", product.getTitle());
+        bundle.putString("price", product.getPrice());
+        bundle.putString("rating", product.getRating());
+        fmg.setArguments(bundle);
+
+        FragmentManager  fragmentManager = activity.getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setReorderingAllowed(true);
+        transaction.replace(R.id.homeFragment, fmg);
+        transaction.addToBackStack(null);
+        transaction.commit();
+    }
 
 }

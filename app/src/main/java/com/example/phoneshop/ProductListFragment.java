@@ -44,7 +44,7 @@ import java.util.concurrent.Executors;
  * Use the {@link ProductListFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ProductListFragment extends Fragment implements  DataCallback {
+public class ProductListFragment extends Fragment {
 
     FragmentProductListBinding binding;
     ArrayList<ProductRVItemClass> data = new ArrayList<>();
@@ -181,7 +181,12 @@ public class ProductListFragment extends Fragment implements  DataCallback {
         super.onViewCreated(view, savedInstanceState);
         productRV = binding.rv;
 //        getProductApi();
-        productRVAdapter = new ProductRVAdapter(getContext(),data);
+        productRVAdapter = new ProductRVAdapter(data, new ProductRVAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClicked(ProductRVItemClass product) {
+                Log.v("test", "rest");
+            }
+        });
         productRVAdapter.notifyDataSetChanged();
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         productRV.setAdapter(productRVAdapter);
@@ -190,39 +195,7 @@ public class ProductListFragment extends Fragment implements  DataCallback {
 
     }
 
-//    private void productRVInit (){
-//        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM Kingston Fury Beast 16GB Bus 3200 MHz","929.000 ","0"));
-//        data.add( new ProductRVItemClass(R.drawable.productimg,"Tai Nghe Gaming ADATA XPG EMIX H20","929.000 ","0"));
-//        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM PNY XLR8 DDR4 8GB 3200MHz LONGDIMM (MD8GD4320016XR)","929.000 ","0"));
-//        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM Kingston Fury Beast 16GB Bus 3200 MHz","929.000 ","0"));
-//        data.add( new ProductRVItemClass(R.drawable.productimg,"Tai Nghe Gaming ADATA XPG EMIX H20","929.000 ","0"));
-//        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM PNY XLR8 DDR4 8GB 3200MHz LONGDIMM (MD8GD4320016XR)","929.000 ","0"));
-//        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM Kingston Fury Beast 16GB Bus 3200 MHz","929.000 ","0"));
-//        data.add( new ProductRVItemClass(R.drawable.productimg,"Tai Nghe Gaming ADATA XPG EMIX H20","929.000 ","0"));
-//        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM PNY XLR8 DDR4 8GB 3200MHz LONGDIMM (MD8GD4320016XR)","929.000 ","0"));
-//        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM Kingston Fury Beast 16GB Bus 3200 MHz","929.000 ","0"));
-//        data.add( new ProductRVItemClass(R.drawable.productimg,"Tai Nghe Gaming ADATA XPG EMIX H20","929.000 ","0"));
-//        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM PNY XLR8 DDR4 8GB 3200MHz LONGDIMM (MD8GD4320016XR)","929.000 ","0"));
-//        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM Kingston Fury Beast 16GB Bus 3200 MHz","929.000 ","0"));
-//        data.add( new ProductRVItemClass(R.drawable.productimg,"Tai Nghe Gaming ADATA XPG EMIX H20","929.000 ","0"));
-//        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM PNY XLR8 DDR4 8GB 3200MHz LONGDIMM (MD8GD4320016XR)","929.000 ","0"));
-//        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM Kingston Fury Beast 16GB Bus 3200 MHz","929.000 ","0"));
-//        data.add( new ProductRVItemClass(R.drawable.productimg,"Tai Nghe Gaming ADATA XPG EMIX H20","929.000 ","0"));
-//        data.add( new ProductRVItemClass(R.drawable.productimg,"RAM PNY XLR8 DDR4 8GB 3200MHz LONGDIMM (MD8GD4320016XR)","929.000 ","0"));
-//    }
 
-    private void getProductApi() {
-        CronetEngine.Builder myBuilder = new CronetEngine.Builder(getActivity());
-        CronetEngine cronetEngine = myBuilder.build();
-        Executor executor = Executors.newSingleThreadExecutor();
-
-        UrlRequest.Builder requestBuilder = cronetEngine.newUrlRequestBuilder(
-                "http://192.168.1.3:3001/api/v1/product/?brandID=2", new GetData(this , "brand"), executor);
-
-        UrlRequest request = requestBuilder.build();
-        Log.v("Req", request.toString());
-        request.start();
-    }
     private RequestQueue mRequestQueue;
     private StringRequest mStringRequest;
     private String url = "http://192.168.1.3:3001/api/v1/product/?brandID=2";
@@ -245,21 +218,6 @@ public class ProductListFragment extends Fragment implements  DataCallback {
         });
 
         mRequestQueue.add(mStringRequest);
-    }
-
-    @Override
-    public void onDataReceived(ArrayList products) {
-        this.data = products;
-        Log.v("products", products.toString());
-        ProductRVAdapter adapter = new ProductRVAdapter(getContext(),data);
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                adapter.notifyDataSetChanged();
-                myListview.setAdapter((ListAdapter) data);
-            }
-        });
-
     }
 
 }

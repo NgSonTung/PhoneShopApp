@@ -12,8 +12,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
+
+import com.example.phoneshop.databinding.FragmentFavoriteProductsBinding;
 import com.example.phoneshop.databinding.ProductItemLayoutBinding;
 
 import java.util.ArrayList;
@@ -23,11 +29,18 @@ public class ProductRVAdapter extends RecyclerView.Adapter<ProductRVAdapter.MyHo
     ProductItemLayoutBinding binding;
     ArrayList<ProductRVItemClass> data;
     private LayoutInflater layoutInflater;
-    private Context context;
-    public ProductRVAdapter(Context context, ArrayList<ProductRVItemClass> data) {
+    private FragmentManager fragmentManager;
+
+    public interface OnItemClickListener {
+        void onItemClicked(ProductRVItemClass product);
+    }
+
+    private OnItemClickListener listener;
+
+    public ProductRVAdapter( ArrayList<ProductRVItemClass> data, OnItemClickListener listener) {
         this.data = data;
-        this.context = context;
-        layoutInflater = LayoutInflater.from(context);
+        this.fragmentManager = fragmentManager;
+        this.listener = listener;
     }
 
     class MyHolder extends RecyclerView.ViewHolder {
@@ -62,23 +75,29 @@ public class ProductRVAdapter extends RecyclerView.Adapter<ProductRVAdapter.MyHo
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Handle item click here
-                openDetailActivity(product);
+                int position = holder.getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    listener.onItemClicked(data.get(position));
+                }
             }
         });
 
     }
 
     private void openDetailActivity(ProductRVItemClass product) {
-        Intent intent = new Intent(context, FavoriteProductsFragment.class);
-
+        Fragment_Details fm = new Fragment_Details();
+        Log.v("fm", product.getImageID().toString());
         Bundle bundle = new Bundle();
         bundle.putString("product_name", product.getTitle());
         bundle.putString("price", product.getPrice());
-//        intent.putExtra("image", product.getImageID());
+//        bundle.put("image", product.getImageID());
         bundle.putString("rating", product.getRating());
-        intent.putExtras(bundle);
-        context.startActivity(intent);
+        fm.setArguments(bundle);
+
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.productdetailfrag, fm);
+        transaction.addToBackStack(null); // Optional: Allows navigating back to the previous fragment on back press
+        transaction.commit();
     }
 
     @Override

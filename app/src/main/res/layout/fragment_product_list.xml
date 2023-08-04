@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="410dp"
     android:layout_height="730dp"
+    android:id="@+id/productbrandfrag"
     tools:context=".ProductListFragment"
     android:orientation="vertical">
         <LinearLayout
