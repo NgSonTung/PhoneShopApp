@@ -16,7 +16,7 @@
         android:layout_marginRight="20dp"
         android:layout_weight="2"
         android:background="#ffffff"
-        android:backgroundTint="#004D4040"
+        android:backgroundTint="#ffffff"
         android:backgroundTintMode="multiply"
         android:orientation="horizontal">
 
@@ -55,7 +55,7 @@
         android:orientation="horizontal">
 
         <ImageButton
-            android:id="@+id/imageButton2"
+            android:id="@+id/btnSettingPersonal"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_gravity="center"
@@ -65,7 +65,7 @@
             android:src="@drawable/setting" />
 
         <ImageButton
-            android:id="@+id/imageButton"
+            android:id="@+id/btnCartPersonal"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_gravity="center"

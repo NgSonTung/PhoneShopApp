@@ -158,7 +158,8 @@
             app:itemBackground="@drawable/selected_item_nav"
             app:itemIconTint="@color/white"
             app:itemTextColor="#F3ECEC"
-            app:menu="@menu/menu_bottom_nav" />
+            app:menu="@menu/menu_bottom_nav"
+            android:id="@+id/menu_navigation"/>
     </LinearLayout>
 
 </LinearLayout>

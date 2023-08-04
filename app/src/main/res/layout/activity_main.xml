@@ -24,6 +24,7 @@
             android:layout_marginBottom="60dp">
 
             <LinearLayout
+
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -53,11 +54,15 @@
 <!--                    android:layout_height="match_parent"-->
 <!--                    android:name="com.example.phoneshop.FragmentHome" />-->
 
-                <fragment
-                    android:id="@+id/homeFragment"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:name="com.example.phoneshop.PersonalFragment" />
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/layoutFragment"/>
+<!--                <fragment-->
+<!--                    android:id="@+id/homeFragment"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:name="com.example.phoneshop.PersonalFragment" />-->
             </LinearLayout>
         </ScrollView>
 

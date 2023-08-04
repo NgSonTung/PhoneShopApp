@@ -38,7 +38,7 @@ tools:context=".HeaderFavoriteFragment">
         android:textStyle="bold" />
 
     <ImageButton
-        android:id="@+id/imageButton2"
+        android:id="@+id/btnSettingPersonal"
         android:layout_width="20dp"
         android:layout_height="fill_parent"
         android:layout_gravity="center"
@@ -50,7 +50,7 @@ tools:context=".HeaderFavoriteFragment">
         android:src="@drawable/setting" />
 
     <ImageButton
-        android:id="@+id/imageButton"
+        android:id="@+id/btnCartPersonal"
         android:layout_width="20dp"
         android:layout_height="fill_parent"
         android:layout_gravity="center"

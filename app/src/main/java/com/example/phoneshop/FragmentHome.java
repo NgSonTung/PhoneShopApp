@@ -20,7 +20,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
-import android.widget.ListAdapter;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -30,8 +29,6 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.phoneshop.databinding.FragmentHomeBinding;
 
-import org.chromium.net.CronetEngine;
-import org.chromium.net.UrlRequest;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,14 +36,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public class FragmentHome extends Fragment {
     FragmentHomeBinding binding;
-    ConstantVar constantVar = new ConstantVar();
+    Constant constantVar = new Constant();
     //Slider
     ViewPager2 viewPager2;
 

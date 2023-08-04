@@ -1,9 +1,15 @@
 package com.example.phoneshop;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
+import android.widget.LinearLayout;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -11,6 +17,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.chromium.net.CronetEngine;
 import org.chromium.net.UrlRequest;
@@ -20,13 +27,62 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
-
+   // Fragment fragmentLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 //        getData();
+        handleNavigation();
     }
+
+    private void handleNavigation(){
+        //fragmentLayout = (Fragment) findViewById(R.id.layoutFragment) ;
+       BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.menu_navigation);
+        loadHeaderFragment(new HeaderFragment());
+        loadFragment(new FragmentHome());
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                if (item.getItemId()== R.id.itemMenuNavHome) {
+                    loadHeaderFragment(new HeaderFragment());
+                    loadFragment(new FragmentHome());
+                }else if (item.getItemId()== R.id.itemMenuNavCategory) {
+                    loadHeaderFragment(new HeaderFragment());
+                    loadFragment(new ProductListFragment());
+
+                }else if (item.getItemId()== R.id.itemMenuNavNotice) {
+//                    loadFragment(new ());
+
+                }else if (item.getItemId()== R.id.itemMenuNavUser){
+                    loadHeaderFragment(new HeaderPersonal());
+                    loadFragment(new PersonalFragment());
+
+                }
+                return true;
+            }
+        });
+    }
+    public void loadFragment(androidx.fragment.app.Fragment
+                                     fragment)
+    {
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft= fm.beginTransaction();
+        ft.replace(R.id.layoutFragment,fragment);
+        ft.commit();
+    }
+
+
+    public void loadHeaderFragment(androidx.fragment.app.Fragment
+                                           fragment)
+    {
+        FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft= fm.beginTransaction();
+        ft.replace(R.id.fragmentContainerView,fragment);
+        ft.commit();
+    }
+
 
     public void getData() {
         // Instantiate the RequestQueue.
