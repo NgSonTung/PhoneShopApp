@@ -197,7 +197,12 @@ public class ProductListFragment extends Fragment  {
         getProducts();
         getCategories();
         productRV = binding.rv;
-        productRVAdapter = new ProductRVAdapter(getContext(),data);
+        productRVAdapter = new ProductRVAdapter(data, new ProductRVAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClicked(ProductRVItemClass product) {
+                Log.v("test", "rest");
+            }
+        });
         productRVAdapter.notifyDataSetChanged();
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         productRV.setAdapter(productRVAdapter);
@@ -266,17 +271,23 @@ public class ProductListFragment extends Fragment  {
                                 String title = productObj.getString("Name");
                                 String price = productObj.getString("Price");
                                 String rating = productObj.getString("Favorite");
+                                String description = productObj.getString("Description");
 
                                 // Create a CompletableFuture for each image retrieval task
                                 CompletableFuture<Void> imageFuture = CompletableFuture.runAsync(() -> {
                                     getProductImage(imgName, new ImageResponseCallback() {
                                         @Override
                                         public void onImageReceived(Bitmap bitmap) {
-                                            ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating);
+                                            ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating, description);
                                             data.add(product);
                                             Log.d("onImageReceived", data.toString());
                                             productRV = binding.rv;
-                                            productRVAdapter = new ProductRVAdapter(getContext(),data);
+                                            productRVAdapter = new ProductRVAdapter(data, new ProductRVAdapter.OnItemClickListener() {
+                                                @Override
+                                                public void onItemClicked(ProductRVItemClass product) {
+                                                    Log.v("test", "rest");
+                                                }
+                                            });
                                             productRVAdapter.notifyDataSetChanged();
                                             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
                                             productRV.setAdapter(productRVAdapter);
@@ -301,7 +312,12 @@ public class ProductListFragment extends Fragment  {
                                 Log.v("list", data.toString());
                                 // Update the RecyclerView once all images are fetched
                                 productRV = binding.rv;
-                                productRVAdapter = new ProductRVAdapter(getContext(),data);
+                                productRVAdapter = new ProductRVAdapter(data, new ProductRVAdapter.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClicked(ProductRVItemClass product) {
+                                        Log.v("test", "rest");
+                                    }
+                                });
                                 productRVAdapter.notifyDataSetChanged();
                                 LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
                                 productRV.setAdapter(productRVAdapter);
