@@ -64,9 +64,7 @@ public class ProductListFragment extends Fragment  {
     ArrayAdapter<arr> adapter;
     // Ram : 1
     // Tai nghe : 2
-    String[] categories = {"All", "Ram", "Tai nghe"};
-
-
+    ArrayList<String> categories = new ArrayList<>();
     private ArrayList<arr> getCosmicBodies(){
         ArrayList<arr> data = new ArrayList<>();
         data.clear();
@@ -96,6 +94,7 @@ public class ProductListFragment extends Fragment  {
     class arr{
         private String name;
         private int categoryID;
+
         public String getName(){
             return name;
         }
@@ -114,23 +113,28 @@ public class ProductListFragment extends Fragment  {
 
 
     class Category {
-        private int categoryID;
-        private  String CategoryName;
+        private String categoryID;
+        private  String categoryName;
 
-        public int getCategoryID() {
+        public String getCategoryID() {
             return categoryID;
         }
 
-        public void setCategoryID(int categoryID) {
+        public void setCategoryID(String categoryID) {
             this.categoryID = categoryID;
         }
 
         public String getCategoryName() {
-            return CategoryName;
+            return categoryName;
         }
 
         public void setCategoryName(String categoryName) {
-            CategoryName = categoryName;
+            this.categoryName = categoryName;
+        }
+
+        public Category(String categoryID, String categoryName  ){
+            this.categoryID = categoryID;
+            this.categoryName = categoryName;
         }
     }
     private static final String ARG_PARAM1 = "param1";
@@ -169,10 +173,12 @@ public class ProductListFragment extends Fragment  {
         myListview = binding.myListview;
         myListview.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, getCosmicBodies()));
 
+       int defaultSelectedPosition = 0;
+       mySpinner.setSelection(defaultSelectedPosition);
         mySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
             @Override
             public void onItemSelected(AdapterView<?> adapterView,View view, int position,long itemID){
-                if (position >= 0 && position < categories.length){
+                if (position >= 0 && position < categories.size()){
                     getSelectedCategoryData(position);
                 } else {
                     Toast.makeText(getActivity(), "Selected Category does not exist", Toast.LENGTH_SHORT).show();
@@ -180,6 +186,7 @@ public class ProductListFragment extends Fragment  {
             }
             @Override
             public void onNothingSelected(AdapterView<?> adapterView){
+                mySpinner.setSelection(defaultSelectedPosition);
 
             }
         });
@@ -195,23 +202,35 @@ public class ProductListFragment extends Fragment  {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getProducts();
-        getCategories();
+        getCategories().thenAccept(result -> {
+            // The categories are fetched successfully
+
+            Log.v("categories.toString()", categories.toString());
+            initializeView();
+
+            // Notify the spinner adapter about the updated categories
+        }).exceptionally(throwable -> {
+            // Handle the exception if an error occurs while fetching categories
+            Log.e("Error", "Failed to fetch categories: " + throwable.getMessage());
+            return null;
+        });
         productRV = binding.rv;
+
+
         productRVAdapter = new ProductRVAdapter(data, new ProductRVAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(ProductRVItemClass product) {
                 Log.v("test", "rest");
             }
         });
+
         productRVAdapter.notifyDataSetChanged();
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
+//            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         productRV.setAdapter(productRVAdapter);
-        productRV.setLayoutManager(gridLayoutManager);
-        initializeView();
 
+        productRV.setLayoutManager(linearLayoutManager);
     }
-
-
 
 
     public void getProductImage(String imgName, ImageResponseCallback callback) {
@@ -232,7 +251,6 @@ public class ProductListFragment extends Fragment  {
                             byte[] decodedString = Base64.decode(img64, Base64.DEFAULT);
                             Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                             callback.onImageReceived(decodedByte);
-                            Log.v("img", decodedByte.toString());
                         } catch (JSONException e) {
                             callback.onError("Error parsing JSON");
                         }
@@ -261,12 +279,10 @@ public class ProductListFragment extends Fragment  {
                         try {
                             JSONObject dataObj = new JSONObject(response);
                             JSONArray dataArray = dataObj.getJSONArray("Data");
-                            Log.v("tag", dataArray.toString());
                             List<CompletableFuture<Void>> imageFutures = new ArrayList<>();
 
                             for (int i = 0; i < dataArray.length(); i++) {
                                 JSONObject productObj = dataArray.getJSONObject(i);
-                                Log.v("product", productObj.toString());
                                 String imgName = productObj.getString("Image");
                                 String title = productObj.getString("Name");
                                 String price = productObj.getString("Price");
@@ -280,12 +296,10 @@ public class ProductListFragment extends Fragment  {
                                         public void onImageReceived(Bitmap bitmap) {
                                             ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating, description);
                                             data.add(product);
-                                            Log.d("onImageReceived", data.toString());
                                             productRV = binding.rv;
                                             productRVAdapter = new ProductRVAdapter(data, new ProductRVAdapter.OnItemClickListener() {
                                                 @Override
                                                 public void onItemClicked(ProductRVItemClass product) {
-                                                    Log.v("test", "rest");
                                                 }
                                             });
                                             productRVAdapter.notifyDataSetChanged();
@@ -305,7 +319,7 @@ public class ProductListFragment extends Fragment  {
                             }
 
                             // Wait for all the image retrieval tasks to complete
-                            CompletableFuture<Void> allImagesFuture = CompletableFuture.allOf(imageFutures.toArray(new CompletableFuture[0]));
+                                CompletableFuture<Void> allImagesFuture = CompletableFuture.allOf(imageFutures.toArray(new CompletableFuture[0]));
 
                             // Add a callback to update RecyclerView when all images are fetched
                             allImagesFuture.thenAccept(result -> {
@@ -315,7 +329,6 @@ public class ProductListFragment extends Fragment  {
                                 productRVAdapter = new ProductRVAdapter(data, new ProductRVAdapter.OnItemClickListener() {
                                     @Override
                                     public void onItemClicked(ProductRVItemClass product) {
-                                        Log.v("test", "rest");
                                     }
                                 });
                                 productRVAdapter.notifyDataSetChanged();
@@ -343,10 +356,9 @@ public class ProductListFragment extends Fragment  {
         queue.add(stringRequest);
     }
 
-    public void getCategories() {
-        // Instantiate the RequestQueue.
-//        RequestQueue queue = Volley.newRequestQueue(getActivity());
-        String urlAPI = "http://"+constant.idAddress+"/api/v1/category";
+    private CompletableFuture<Void> getCategories() {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        String urlAPI = "http://" + constant.idAddress + "/api/v1/category";
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
@@ -356,38 +368,28 @@ public class ProductListFragment extends Fragment  {
                         try {
                             JSONObject dataObj = new JSONObject(response);
                             JSONArray dataArray = dataObj.getJSONArray("Data");
-                            Log.v("tag", dataArray.toString());
-
                             for (int i = 0; i < dataArray.length(); i++) {
                                 JSONObject cate = dataArray.getJSONObject(i);
-                                Log.v("cate", cate.toString());
-                                String categoryID = cate.getString("CategoyID");
                                 String categoryName = cate.getString("CategoryName");
-
-
+                                categories.add(categoryName);
                             }
-
-                            // Wait for all the image retrieval tasks to complete
-
-                            // Add a callback to update RecyclerView when all images are fetched
-
-
+                            future.complete(null); // Mark the future as complete when the categories are fetched
                         } catch (JSONException e) {
-                            e.printStackTrace();
+                            future.completeExceptionally(e); // Mark the future as exceptionally completed in case of an error
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.v("Error api ne", error.toString());
+                future.completeExceptionally(error); // Mark the future as exceptionally completed in case of an error
             }
         });
 
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        RequestQueue queue = Volley.newRequestQueue(requireActivity());
         queue.add(stringRequest);
+
+        return future;
     }
-
-
 
 
 
