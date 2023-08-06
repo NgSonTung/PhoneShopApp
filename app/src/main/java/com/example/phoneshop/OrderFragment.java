@@ -2,10 +2,7 @@ package com.example.phoneshop;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +15,6 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
@@ -33,10 +29,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -45,9 +38,10 @@ import java.util.concurrent.CompletableFuture;
  */
 public class OrderFragment extends Fragment {
     FragmentOrderBinding binding;
-    ArrayList<OrderRVItemClass> data = new ArrayList<>();
+
     OrderRVAdapter orderRVAdapter;
     RecyclerView orderRV;
+    ArrayList<OrderRVItemClass> data = new ArrayList<>();
 
 
     // TODO: Rename parameter arguments, choose names that match
@@ -107,62 +101,24 @@ public class OrderFragment extends Fragment {
         }
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//        fragmentTransaction.setReorderingAllowed(true);
         Fragment headerOrderFragment = new HeaderOrderFragment();
         fragmentTransaction.replace(R.id.fragmentContainerView, headerOrderFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
-
-
         orderRV = binding.orderFrag;
-        OrderRVInit();
         orderRVAdapter = new OrderRVAdapter(data);
-        orderRVAdapter.notifyDataSetChanged();
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
         orderRV.setAdapter(orderRVAdapter);
         orderRV.setLayoutManager(gridLayoutManager);
 
+        Log.v("CCCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCCC");
+        getOrders();
 
-    }
 
-    public void getProductImage(String imgName, ImageResponseCallback callback) {
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
-        String url = "http://" + Constant.idAddress + "/api/v1/product/image/" + imgName;
-
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject dataObj = new JSONObject(response);
-//                            Log.v("img",dataObj.toString());
-                            JSONObject data = dataObj.getJSONObject("Data");
-                            String img64 = data.getString("Base64");
-                            byte[] decodedString = Base64.decode(img64, Base64.DEFAULT);
-                            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-                            callback.onImageReceived(decodedByte);
-                            Log.v("img", decodedByte.toString());
-                        } catch (JSONException e) {
-                            callback.onError("Error parsing JSON");
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                callback.onError("Error fetching image from API");
-            }
-        });
-
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
     }
 
     public void getOrders() {
-        // Instantiate the RequestQueue.
-//        RequestQueue queue = Volley.newRequestQueue(getActivity());
-        String urlAPI = "http://" + Constant.idAddress + "/api/v1/order/product/?userID="+getUserIdFromSharedPreferences();
+        String urlAPI = "http://" + Constant.idAddress + "/api/v1/order/user/" + getUserIdFromSharedPreferences();
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
@@ -172,71 +128,22 @@ public class OrderFragment extends Fragment {
                         try {
                             JSONObject resObj = new JSONObject(response);
                             JSONObject dataObj = resObj.getJSONObject("Data");
-                            JSONArray dataArray = dataObj.getJSONArray("DataInOrder");
-                            List<CompletableFuture<Void>> imageFutures = new ArrayList<>();
-
+                            JSONArray dataArray = dataObj.getJSONArray("Data");
+                            Log.v("CCCCCCCCCCCCCCCCNEEEEEEEE", response);
                             for (int i = 0; i < dataArray.length(); i++) {
                                 JSONObject productObj = dataArray.getJSONObject(i);
-                                Log.v("product", productObj.toString());
-                                String imgName = productObj.getString("Image");
-                                String title = productObj.getString("Name");
-                                String price = productObj.getString("Price");
-                                String rating = productObj.getString("Favorite");
-                                String description = productObj.getString("Description");
-
-                                // Create a CompletableFuture for each image retrieval task
-                                CompletableFuture<Void> imageFuture = CompletableFuture.runAsync(() -> {
-                                    getProductImage(imgName, new ImageResponseCallback() {
-                                        @Override
-                                        public void onImageReceived(Bitmap bitmap) {
-                                            ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating, description);
-                                            iphoneProductList.add(product);
-                                            productRV = binding.productRecycleView;
-                                            productRVAdapter = new ProductRVAdapter(iphoneProductList, new ProductRVAdapter.OnItemClickListener() {
-                                                @Override
-                                                public void onItemClicked(ProductRVItemClass product) {
-                                                    openDetailFragment(product);
-                                                }
-                                            });
-                                            productRVAdapter.notifyDataSetChanged();
-                                            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
-                                            productRV.setAdapter(productRVAdapter);
-                                            productRV.setLayoutManager(linearLayoutManager);
-                                        }
-
-                                        @Override
-                                        public void onError(String errorMessage) {
-                                            Log.e("API Error", errorMessage);
-                                        }
-                                    });
-                                });
-
-                                imageFutures.add(imageFuture);
+                                Log.v("product NEEEEEEEE", productObj.toString());
+                                String statusName = productObj.getString("StatusName");
+                                int totalAmount = productObj.getInt("TotalAmount");
+                                String totalPrice = productObj.getString("TotalPrice");
+                                String paymentName = productObj.getString("PaymentName");
+                                String createdAt = productObj.getString("CreatedAt");
+                                OrderRVItemClass product = new OrderRVItemClass(statusName, totalPrice, createdAt, totalAmount, paymentName);
+                                data.add(product);
                             }
 
-//                            // Wait for all the image retrieval tasks to complete
-//                            CompletableFuture<Void> allImagesFuture = CompletableFuture.allOf(imageFutures.toArray(new CompletableFuture[0]));
-//
-//                            // Add a callback to update RecyclerView when all images are fetched
-//                            allImagesFuture.thenAccept(result -> {
-//                                Log.v("list", iphoneProductList.toString());
-//                                // Update the RecyclerView once all images are fetched
-//                                productRV = binding.productRecycleView;
-//                                productRVAdapter = new ProductRVAdapter(iphoneProductList, new ProductRVAdapter.OnItemClickListener() {
-//                                    @Override
-//                                    public void onItemClicked(ProductRVItemClass product) {
-//                                        openDetailFragment(product);
-//                                    }
-//                                });
-//                                productRVAdapter.notifyDataSetChanged();
-//                                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
-//                                productRV.setAdapter(productRVAdapter);
-//                                productRV.setLayoutManager(linearLayoutManager);
-//                            }).exceptionally(throwable -> {
-//                                // Handle exceptions (if any) during the image retrieval process
-//                                throwable.printStackTrace();
-//                                return null;
-//                            });
+                            orderRVAdapter.notifyDataSetChanged();
+
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -248,41 +155,11 @@ public class OrderFragment extends Fragment {
                 Log.v("Error api ne", error.toString());
             }
         });
-
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         queue.add(stringRequest);
     }
 
-    // Implement the onItemClick method from the interface
-    @Override
-    public void onItemClicked(ProductRVItemClass product) {
-        openDetailFragment(product);
-    }
-
     // Method to replace the fragment in the 'productdetailfrag' container
-    private void openDetailFragment(ProductRVItemClass product) {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        product.getImageID().compress(Bitmap.CompressFormat.PNG, 100, stream);
-        byte[] byteArray = stream.toByteArray();
-
-        Fragment fmg = new Fragment_Details();
-        FragmentActivity activity = getActivity();
-        Bundle bundle = new Bundle();
-        bundle.putString("product_name", product.getTitle());
-        bundle.putByteArray("img_byte", byteArray);
-        bundle.putString("price", product.getPrice());
-        bundle.putString("rating", product.getRating());
-        bundle.putString("description", product.getDescription());
-        fmg.setArguments(bundle);
-
-        FragmentManager fragmentManager = activity.getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.setReorderingAllowed(true);
-        transaction.replace(R.id.layoutFragment, fmg);
-        transaction.addToBackStack(null);
-        transaction.commit();
-    }
-
     public int getUserIdFromSharedPreferences() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user_info", Context.MODE_PRIVATE);
         // Get the UserID from SharedPreferences, default to -1 if not found

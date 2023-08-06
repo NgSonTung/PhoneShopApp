@@ -24,13 +24,11 @@ public class OrderRVAdapter  extends  RecyclerView.Adapter<OrderRVAdapter.MyHold
     }
 
     class  MyHolder extends RecyclerView.ViewHolder{
-        ImageView img ;
         TextView title, price,amount, point, createAt;
 
         public  MyHolder (View view){
             super(view);
             binding = OrderItemLayoutBinding.bind(view);
-            img = binding.orderItemImg;
             title = binding.orderItemName;
             price = binding.orderItemPrice;
             amount = binding.orderItemAmount;
@@ -49,11 +47,10 @@ public class OrderRVAdapter  extends  RecyclerView.Adapter<OrderRVAdapter.MyHold
     @Override
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
 
-        holder.img.setImageResource(data.get(position).getImageID());
-        holder.title.setText(data.get(position).getTitle());
+        holder.title.setText("Trạng thái: "+data.get(position).getTitle());
         holder.price.setText(data.get(position).getPrice() + " đ");
         holder.amount.setText("x"+data.get(position).getAmount() +"");
-        holder.point.setText("Điểm tích lũy: "+data.get(position).getPoint() + "");
+        holder.point.setText("Phương thức thanh toán: \n"+data.get(position).getPoint() + "");
         holder.createAt.setText(data.get(position).getCreateAt());
     }
 

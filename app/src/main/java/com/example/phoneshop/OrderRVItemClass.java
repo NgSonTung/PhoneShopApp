@@ -3,21 +3,14 @@ package com.example.phoneshop;
 import java.util.ArrayList;
 
 public class OrderRVItemClass {
-    int imageID;
     String title;
     String price;
     String createAt;
     int amount;
-    int point;
+    String point;
 
 
-    public int getImageID() {
-        return imageID;
-    }
 
-    public void setImageID(int imageID) {
-        this.imageID = imageID;
-    }
 
     public String getTitle() {
         return title;
@@ -51,29 +44,28 @@ public class OrderRVItemClass {
         this.amount = amount;
     }
 
-    public int getPoint() {
+    public String getPoint() {
         return point;
     }
 
-    public void setPoint(int point) {
+    public void setPoint(String point) {
         this.point = point;
     }
 
 
-    public OrderRVItemClass(int imageID, String title, String price, String createAt, int amount, int point) {
-        this.imageID = imageID;
+    public OrderRVItemClass(String title, String price, String createAt, int amount, String point) {
         this.title = title;
         this.price = price;
         this.createAt = createAt;
         this.amount = amount;
         this.point = point;
     }
-    public static ArrayList<OrderRVItemClass> initData(int[] imageList, String[] titleList, String[] priceList , String[] createAtList, int[] amountList, int[] pointList) {
+    public static ArrayList<OrderRVItemClass> initData(int[] imageList, String[] titleList, String[] priceList , String[] createAtList, int[] amountList, String[] pointList) {
 
         ArrayList<OrderRVItemClass> arrList = new ArrayList<>();
 
         for (int i = 0; i < titleList.length; i++) {
-            OrderRVItemClass item = new OrderRVItemClass(imageList[i], titleList[i], priceList[i],createAtList[i],amountList[i],pointList[i]);
+            OrderRVItemClass item = new OrderRVItemClass(titleList[i], priceList[i],createAtList[i],amountList[i],pointList[i]);
             arrList.add(item);
         }
         return arrList;
