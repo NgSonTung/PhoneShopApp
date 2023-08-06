@@ -55,40 +55,48 @@ public class ProductListFragment extends Fragment  {
     ArrayList<ProductRVItemClass> data = new ArrayList<>();
 
     ArrayList<Category> cate = new ArrayList<>();
-    ProductRVAdapter productRVAdapter;
+    ProductListRVAdapter productListRVAdapter;
     RecyclerView productRV;
     Constant constant = new Constant();
     //Spinner
     ListView myListview;
-    Spinner mySpinner;
+    Spinner mySpinner,brandSpinner;
+    List<CompletableFuture<Void>> listQueue = new ArrayList<>();
+
     ArrayAdapter<arr> adapter;
     // Ram : 1
     // Tai nghe : 2
+
     ArrayList<String> categories = new ArrayList<>();
-    private ArrayList<arr> getCosmicBodies(){
-        ArrayList<arr> data = new ArrayList<>();
-        data.clear();
-        data.add(new arr("KingSton", 1));
-        data.add(new arr("acer", 2));
-        data.add(new arr("apple", 1));
-        data.add(new arr("asus", 1));
-        data.add(new arr("ava", 2));
-        data.add(new arr("befit", 2));
-    return  data;
-    }
+    ArrayList<String> brands = new ArrayList<>();
+    String queryCategory ,queryBrand;
+
+
+
+//    private ArrayList<arr> getCosmicBodies(){
+//        ArrayList<arr> data = new ArrayList<>();
+//        data.clear();
+//        data.add(new arr("KingSton", 1));
+//        data.add(new arr("acer", 2));
+//        data.add(new arr("apple", 1));
+//        data.add(new arr("asus", 1));
+//        data.add(new arr("ava", 2));
+//        data.add(new arr("befit", 2));
+//    return  data;
+//    }
     private  void getSelectedCategoryData(int categoryID){
         ArrayList<arr> arrs = new ArrayList<>();
         if(categoryID == 0 ){
-            adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, getCosmicBodies());
+//            adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, getCosmicBodies());
         } else {
-            for (arr arr : getCosmicBodies()){
-                if(arr.getCategoryID() == categoryID ){
-                    arrs.add(arr);
-                }
-            }
-            adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, arrs)
+//            for (arr arr : getCosmicBodies()){
+//                if(arr.getCategoryID() == categoryID ){
+//                    arrs.add(arr);
+//                }
+//            }
+//            adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, arrs)
 ;        }
-        myListview.setAdapter(adapter);
+//        myListview.setAdapter(adapter);
     }
 
     class arr{
@@ -137,6 +145,32 @@ public class ProductListFragment extends Fragment  {
             this.categoryName = categoryName;
         }
     }
+
+    class Brands {
+        String brandID , brandName;
+
+        public Brands(String brandID, String brandName) {
+            this.brandID = brandID;
+            this.brandName = brandName;
+        }
+
+        public String getBrandID() {
+            return brandID;
+        }
+
+        public void setBrandID(String brandID) {
+            this.brandID = brandID;
+        }
+
+        public String getBrandName() {
+            return brandName;
+        }
+
+        public void setBrandName(String brandName) {
+            this.brandName = brandName;
+        }
+    }
+
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
@@ -170,8 +204,8 @@ public class ProductListFragment extends Fragment  {
    private  void initializeView(){
         mySpinner = binding.mySpinner;
         mySpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, categories));
-        myListview = binding.myListview;
-        myListview.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, getCosmicBodies()));
+       brandSpinner = binding.brandSpinner;
+       brandSpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, brands));
 
        int defaultSelectedPosition = 0;
        mySpinner.setSelection(defaultSelectedPosition);
@@ -202,33 +236,34 @@ public class ProductListFragment extends Fragment  {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         getProducts();
-        getCategories().thenAccept(result -> {
+        getCategories();
+        getBrands();
+        CompletableFuture<Void> allQueue = CompletableFuture.allOf(listQueue.toArray(new CompletableFuture[0]));
+        allQueue.thenAccept(result -> {
             // The categories are fetched successfully
 
-            Log.v("categories.toString()", categories.toString());
             initializeView();
 
             // Notify the spinner adapter about the updated categories
         }).exceptionally(throwable -> {
             // Handle the exception if an error occurs while fetching categories
-            Log.e("Error", "Failed to fetch categories: " + throwable.getMessage());
+            Log.e("Error", "Failed to fetch : " + throwable.getMessage());
             return null;
         });
         productRV = binding.rv;
 
 
-        productRVAdapter = new ProductRVAdapter(data, new ProductRVAdapter.OnItemClickListener() {
+        productListRVAdapter = new ProductListRVAdapter(data, new ProductListRVAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(ProductRVItemClass product) {
                 Log.v("test", "rest");
             }
         });
 
-        productRVAdapter.notifyDataSetChanged();
+        productListRVAdapter.notifyDataSetChanged();
 //            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-        productRV.setAdapter(productRVAdapter);
-
+        productRV.setAdapter(productListRVAdapter);
         productRV.setLayoutManager(linearLayoutManager);
     }
 
@@ -297,14 +332,14 @@ public class ProductListFragment extends Fragment  {
                                             ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating, description);
                                             data.add(product);
                                             productRV = binding.rv;
-                                            productRVAdapter = new ProductRVAdapter(data, new ProductRVAdapter.OnItemClickListener() {
+                                            productListRVAdapter = new ProductListRVAdapter(data, new ProductListRVAdapter.OnItemClickListener() {
                                                 @Override
                                                 public void onItemClicked(ProductRVItemClass product) {
                                                 }
                                             });
-                                            productRVAdapter.notifyDataSetChanged();
-                                            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
-                                            productRV.setAdapter(productRVAdapter);
+                                            productListRVAdapter.notifyDataSetChanged();
+                                            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false);
+                                            productRV.setAdapter(productListRVAdapter);
                                             productRV.setLayoutManager(linearLayoutManager);
                                         }
 
@@ -326,14 +361,14 @@ public class ProductListFragment extends Fragment  {
                                 Log.v("list", data.toString());
                                 // Update the RecyclerView once all images are fetched
                                 productRV = binding.rv;
-                                productRVAdapter = new ProductRVAdapter(data, new ProductRVAdapter.OnItemClickListener() {
+                                productListRVAdapter = new ProductListRVAdapter(data, new ProductListRVAdapter.OnItemClickListener() {
                                     @Override
                                     public void onItemClicked(ProductRVItemClass product) {
                                     }
                                 });
-                                productRVAdapter.notifyDataSetChanged();
-                                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
-                                productRV.setAdapter(productRVAdapter);
+                                productListRVAdapter.notifyDataSetChanged();
+                                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false);
+                                productRV.setAdapter(productListRVAdapter);
                                 productRV.setLayoutManager(linearLayoutManager);
                             }).exceptionally(throwable -> {
                                 // Handle exceptions (if any) during the image retrieval process
@@ -387,11 +422,45 @@ public class ProductListFragment extends Fragment  {
 
         RequestQueue queue = Volley.newRequestQueue(requireActivity());
         queue.add(stringRequest);
-
+        listQueue.add(future);
         return future;
     }
 
 
+    private CompletableFuture<Void> getBrands() {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        String urlAPI = "http://" + constant.idAddress + "/api/v1/brand";
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject dataObj = new JSONObject(response);
+                            JSONArray dataArray = dataObj.getJSONArray("Data");
+                            for (int i = 0; i < dataArray.length(); i++) {
+                                JSONObject brand = dataArray.getJSONObject(i);
+                                String brandName = brand.getString("BrandName");
+                                brands.add(brandName);
+                            }
+                            future.complete(null); // Mark the future as complete when the categories are fetched
+                        } catch (JSONException e) {
+                            future.completeExceptionally(e); // Mark the future as exceptionally completed in case of an error
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                future.completeExceptionally(error); // Mark the future as exceptionally completed in case of an error
+            }
+        });
+
+        RequestQueue queue = Volley.newRequestQueue(requireActivity());
+        queue.add(stringRequest);
+        listQueue.add(future);
+        return future;
+    }
 
 
 
