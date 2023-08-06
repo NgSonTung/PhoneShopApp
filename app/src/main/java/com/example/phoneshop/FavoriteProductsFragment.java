@@ -5,6 +5,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -89,6 +91,13 @@ public class FavoriteProductsFragment extends Fragment {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
         favoriteRV.setAdapter(FavoriteProductsRVAdapter);
         favoriteRV.setLayoutManager(gridLayoutManager);
+
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        Fragment headerFavoriteFragment = new HeaderFavoriteFragment();
+        fragmentTransaction.replace(R.id.fragmentContainerView, headerFavoriteFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
 
     private void FavoriteRVInit (){

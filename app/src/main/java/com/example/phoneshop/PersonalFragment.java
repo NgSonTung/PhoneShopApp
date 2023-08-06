@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +27,7 @@ import com.example.phoneshop.databinding.FragmentPersonalBinding;
 public class PersonalFragment extends Fragment {
     FragmentPersonalBinding binding;
 
-    LinearLayout logoutBtn;
+    LinearLayout logoutBtn,orderBtn, favoriteBtn;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -72,6 +74,9 @@ public class PersonalFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentPersonalBinding.inflate(inflater, container, false);
         logoutBtn = binding.logout;
+        favoriteBtn = binding.favorite;
+        orderBtn = binding.order;
+
 
         logoutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,6 +90,30 @@ public class PersonalFragment extends Fragment {
 
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        favoriteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                Fragment favorite = new FavoriteProductsFragment();
+                fragmentTransaction.replace(R.id.layoutFragment, favorite);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            }
+        });
+
+        orderBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                Fragment orderFragment = new OrderFragment();
+                fragmentTransaction.replace(R.id.layoutFragment, orderFragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
             }
         });
 

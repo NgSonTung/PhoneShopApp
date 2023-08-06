@@ -52,8 +52,8 @@ public class OrderRVAdapter  extends  RecyclerView.Adapter<OrderRVAdapter.MyHold
         holder.img.setImageResource(data.get(position).getImageID());
         holder.title.setText(data.get(position).getTitle());
         holder.price.setText(data.get(position).getPrice() + " đ");
-        holder.amount.setText(data.get(position).getAmount() +"");
-        holder.point.setText(data.get(position).getPoint() + "");
+        holder.amount.setText("x"+data.get(position).getAmount() +"");
+        holder.point.setText("Điểm tích lũy: "+data.get(position).getPoint() + "");
         holder.createAt.setText(data.get(position).getCreateAt());
     }
 

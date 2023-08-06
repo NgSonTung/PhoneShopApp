@@ -12,6 +12,7 @@
         android:orientation="vertical">
 
         <LinearLayout
+            android:id="@+id/order"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:background="@drawable/customborder"
@@ -23,8 +24,7 @@
                 android:layout_height="60dp"
                 android:layout_weight="1"
                 android:scaleType="centerInside"
-                android:src="@drawable/favorite"
-                app:srcCompat="@drawable/list_check_solid" />
+                android:src="@drawable/list_check_solid" />
 
             <TextView
                 android:layout_width="10dp"
@@ -47,6 +47,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/favorite"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:background="@drawable/customborder"
