@@ -105,6 +105,7 @@ public class OrderFragment extends Fragment {
         fragmentTransaction.replace(R.id.fragmentContainerView, headerOrderFragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+
         orderRV = binding.orderFrag;
         orderRVAdapter = new OrderRVAdapter(data);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);

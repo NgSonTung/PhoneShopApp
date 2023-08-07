@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
@@ -23,6 +24,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -37,7 +39,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.sql.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -46,6 +50,9 @@ public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemCli
     Constant constantVar = new Constant();
     //Slider
     ViewPager2 viewPager2;
+    ArrayList<String>  categoryNames = new ArrayList();
+    GridAdapter gridAdapter;
+
 
     //implementing auto slide facility
     private Handler slideHandle = new Handler();
@@ -58,7 +65,7 @@ public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemCli
     RecyclerView productRV;
     RecyclerView brandRV;
 
-    GridView gridView;
+    RecyclerView gridView;
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
@@ -112,6 +119,20 @@ public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemCli
         LinearLayoutManager linearLayoutManagerBrand = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL, false);
         brandRV.setAdapter(brandRVAdapter);
         brandRV.setLayoutManager(linearLayoutManagerBrand);
+        ArrayList<Integer> productImages = new ArrayList();
+        productImages.add(R.drawable.headphone);
+        productImages.add(R.drawable.keyboard);
+        productImages.add(R.drawable.laptop);
+        productImages.add(R.drawable.modem);
+        productImages.add(R.drawable.phone);
+        productImages.add(R.drawable.ipad);
+        productImages.add(R.drawable.watch);
+        productImages.add(R.drawable.tv);
+        gridView = binding.categoryGridView;
+        gridAdapter = new GridAdapter(getContext(),categoryNames,productImages);
+        gridView.setAdapter(gridAdapter);
+        gridView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+        getCategories();
     }
 
     private void addControls() {
@@ -208,6 +229,42 @@ public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemCli
 
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
+    }
+
+    public void getCategories() {
+        String urlAPI = "http://" + Constant.idAddress + "/api/v1/category";
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        try {
+                            JSONObject resObj = new JSONObject(response);
+                            JSONArray dataArray = resObj.getJSONArray("Data");
+                            for (int i = 0; i < dataArray.length(); i++) {
+                                JSONObject categoryObj = dataArray.getJSONObject(i);
+                                String categoryName = categoryObj.getString("CategoryName");
+                                categoryNames.add(categoryName);
+                                Log.v("Error api ne", categoryName);
+
+                            }
+                            gridAdapter.notifyDataSetChanged();
+                            Toast.makeText(getContext(), "GOT DATA: " + categoryNames.get(0), Toast.LENGTH_SHORT).show();
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.v("Error api ne", error.toString());
+            }
+        });
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        queue.add(stringRequest);
+
     }
 
     public void getIphoneProducts() {
