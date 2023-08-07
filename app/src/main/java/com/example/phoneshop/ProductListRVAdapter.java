@@ -14,12 +14,13 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.phoneshop.databinding.ProductItemLayoutBinding;
+import com.example.phoneshop.databinding.ProductItemVerticalBinding;
 
 import java.util.ArrayList;
 
 public class ProductListRVAdapter extends RecyclerView.Adapter<ProductListRVAdapter.MyHolder> {
 
-    ProductItemLayoutBinding binding;
+    ProductItemVerticalBinding binding;
     ArrayList<ProductRVItemClass> data;
     private LayoutInflater layoutInflater;
     private FragmentManager fragmentManager;
@@ -42,7 +43,7 @@ public class ProductListRVAdapter extends RecyclerView.Adapter<ProductListRVAdap
 
         public MyHolder(View view) {
             super(view);
-            binding = ProductItemLayoutBinding.bind(view);
+            binding = ProductItemVerticalBinding.bind(view);
             img = binding.productImage;
             title = binding.productTitle;
             price = binding.productPrice;
@@ -53,7 +54,7 @@ public class ProductListRVAdapter extends RecyclerView.Adapter<ProductListRVAdap
     @NonNull
     @Override
     public ProductListRVAdapter.MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = layoutInflater.from(parent.getContext()).inflate(R.layout.product_item_layout,parent,false);
+        View view = layoutInflater.from(parent.getContext()).inflate(R.layout.product_item_vertical,parent,false);
         return new ProductListRVAdapter.MyHolder(view);
     }
 

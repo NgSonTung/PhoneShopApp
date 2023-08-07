@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
@@ -42,7 +43,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -84,9 +87,10 @@ public class ProductListFragment extends Fragment  {
 //        data.add(new arr("befit", 2));
 //    return  data;
 //    }
-    private  void getSelectedCategoryData(int categoryID){
+    private  void getSelectedCategoryData(String categoryName){
         ArrayList<arr> arrs = new ArrayList<>();
-        if(categoryID == 0 ){
+        Log.d("getSelectedCategoryData", categoryName);
+        if(categoryName == "" ){
 //            adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, getCosmicBodies());
         } else {
 //            for (arr arr : getCosmicBodies()){
@@ -206,21 +210,20 @@ public class ProductListFragment extends Fragment  {
         mySpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, categories));
        brandSpinner = binding.brandSpinner;
        brandSpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, brands));
-
-       int defaultSelectedPosition = 0;
-       mySpinner.setSelection(defaultSelectedPosition);
+//
         mySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
             @Override
             public void onItemSelected(AdapterView<?> adapterView,View view, int position,long itemID){
                 if (position >= 0 && position < categories.size()){
-                    getSelectedCategoryData(position);
+                    getSelectedCategoryData(categories.get(position));
+                    mySpinner.setSelection(position);
+
                 } else {
                     Toast.makeText(getActivity(), "Selected Category does not exist", Toast.LENGTH_SHORT).show();
                 }
             }
             @Override
             public void onNothingSelected(AdapterView<?> adapterView){
-                mySpinner.setSelection(defaultSelectedPosition);
 
             }
         });
@@ -235,7 +238,9 @@ public class ProductListFragment extends Fragment  {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        getProducts();
+        categories.add("All");
+        brands.add("All");
+        getProducts("");
         getCategories();
         getBrands();
         CompletableFuture<Void> allQueue = CompletableFuture.allOf(listQueue.toArray(new CompletableFuture[0]));
@@ -260,11 +265,7 @@ public class ProductListFragment extends Fragment  {
             }
         });
 
-        productListRVAdapter.notifyDataSetChanged();
-//            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
-        productRV.setAdapter(productListRVAdapter);
-        productRV.setLayoutManager(linearLayoutManager);
+
     }
 
 
@@ -301,11 +302,10 @@ public class ProductListFragment extends Fragment  {
         queue.add(stringRequest);
     }
 
-    public void getProducts() {
-        // Instantiate the RequestQueue.
-//        RequestQueue queue = Volley.newRequestQueue(getActivity());
+    public void getProducts(String filter) {
         String urlAPI = "http://"+constant.idAddress+"/api/v1/product/?brandID=2";
-
+        Map<String, String> headers = new HashMap<>();
+        headers.put("BrandName", "acer");
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
                 new Response.Listener<String>() {
@@ -338,9 +338,11 @@ public class ProductListFragment extends Fragment  {
                                                 }
                                             });
                                             productListRVAdapter.notifyDataSetChanged();
+                                            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
+
                                             LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false);
                                             productRV.setAdapter(productListRVAdapter);
-                                            productRV.setLayoutManager(linearLayoutManager);
+                                            productRV.setLayoutManager(gridLayoutManager);
                                         }
 
                                         @Override
@@ -385,7 +387,12 @@ public class ProductListFragment extends Fragment  {
             public void onErrorResponse(VolleyError error) {
                 Log.v("Error api ne", error.toString());
             }
-        });
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return headers;
+            }
+        };
 
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         queue.add(stringRequest);
