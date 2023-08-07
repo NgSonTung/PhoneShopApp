@@ -63,7 +63,7 @@ public class ProductListFragment extends Fragment  {
     Constant constant = new Constant();
     //Spinner
     ListView myListview;
-    Spinner mySpinner,brandSpinner;
+    Spinner cateSpinner,brandSpinner;
     List<CompletableFuture<Void>> listQueue = new ArrayList<>();
 
     ArrayAdapter<arr> adapter;
@@ -240,16 +240,16 @@ public class ProductListFragment extends Fragment  {
     }
 
     private  void initializeView(){
-        mySpinner = binding.mySpinner;
-        mySpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, categories));
+        cateSpinner = binding.mySpinner;
+        cateSpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, categories));
         brandSpinner = binding.brandSpinner;
         brandSpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, brands));
 //
-        mySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+        cateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
             @Override
             public void onItemSelected(AdapterView<?> adapterView,View view, int position,long itemID){
                 if (position >= 0 && position < categories.size()){
-                    mySpinner.setSelection(position);
+                    cateSpinner.setSelection(position);
                     queryCategory = categories.get(position);
                     Log.d("onItemSelected", queryCategory);
                     if (queryCategory == "All"){
@@ -258,6 +258,7 @@ public class ProductListFragment extends Fragment  {
                     else {
                         getProducts();
                         Log.d("onItemSelected", data.get(0).title + "");
+//                        productListRVAdapter.notifyDataSetChanged();
 
                     }
 
@@ -390,9 +391,9 @@ public class ProductListFragment extends Fragment  {
                                                 public void onItemClicked(ProductRVItemClass product) {
                                                 }
                                             });
-//                                            productListRVAdapter.notifyDataSetChanged();
+                                            productListRVAdapter.notifyDataSetChanged();
 
-                                            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
+//                                            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
 
                                             productRV.setAdapter(productListRVAdapter);
 //                                            productRV.setLayoutManager(gridLayoutManager);
@@ -421,9 +422,8 @@ public class ProductListFragment extends Fragment  {
 //                                    public void onItemClicked(ProductRVItemClass product) {
 //                                    }
 //                                });
-                                if (productListRVAdapter != null) {
-                                    productListRVAdapter.notifyDataSetChanged();
-                                }
+                                productListRVAdapter.notifyDataSetChanged();
+
 
                             }).exceptionally(throwable -> {
                                 // Handle exceptions (if any) during the image retrieval process
