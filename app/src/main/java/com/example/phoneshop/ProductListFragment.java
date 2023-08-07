@@ -67,8 +67,7 @@ public class ProductListFragment extends Fragment  {
     List<CompletableFuture<Void>> listQueue = new ArrayList<>();
 
     ArrayAdapter<arr> adapter;
-    // Ram : 1
-    // Tai nghe : 2
+
 
     ArrayList<String> categories = new ArrayList<>();
     ArrayList<String> brands = new ArrayList<>();
@@ -87,21 +86,15 @@ public class ProductListFragment extends Fragment  {
 //        data.add(new arr("befit", 2));
 //    return  data;
 //    }
-    private  void getSelectedCategoryData(String categoryName){
-        ArrayList<arr> arrs = new ArrayList<>();
-        Log.d("getSelectedCategoryData", categoryName);
-        if(categoryName == "" ){
-//            adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, getCosmicBodies());
-        } else {
-//            for (arr arr : getCosmicBodies()){
-//                if(arr.getCategoryID() == categoryID ){
-//                    arrs.add(arr);
-//                }
-//            }
-//            adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, arrs)
-;        }
-//        myListview.setAdapter(adapter);
-    }
+//    private  void getSelectedCategoryData(String categoryName){
+//
+//        Log.d("getSelectedCategoryData", categoryName);
+//        if(categoryName == "" ){
+////            adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, getCosmicBodies());
+//        } else {
+//            getProducts(categoryName);
+//        }
+//    }
 
     class arr{
         private String name;
@@ -203,31 +196,8 @@ public class ProductListFragment extends Fragment  {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        Log.v("vcc", "goi api");
     }
-   private  void initializeView(){
-        mySpinner = binding.mySpinner;
-        mySpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, categories));
-       brandSpinner = binding.brandSpinner;
-       brandSpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, brands));
-//
-        mySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView,View view, int position,long itemID){
-                if (position >= 0 && position < categories.size()){
-                    getSelectedCategoryData(categories.get(position));
-                    mySpinner.setSelection(position);
 
-                } else {
-                    Toast.makeText(getActivity(), "Selected Category does not exist", Toast.LENGTH_SHORT).show();
-                }
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView){
-
-            }
-        });
-    }
    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -240,7 +210,7 @@ public class ProductListFragment extends Fragment  {
         super.onViewCreated(view, savedInstanceState);
         categories.add("All");
         brands.add("All");
-        getProducts("");
+        getProducts();
         getCategories();
         getBrands();
         CompletableFuture<Void> allQueue = CompletableFuture.allOf(listQueue.toArray(new CompletableFuture[0]));
@@ -257,18 +227,93 @@ public class ProductListFragment extends Fragment  {
         });
         productRV = binding.rv;
 
-
+        Log.d("onViewCreated", data.size() +"");
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
+        productRV.setLayoutManager(gridLayoutManager);
         productListRVAdapter = new ProductListRVAdapter(data, new ProductListRVAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(ProductRVItemClass product) {
-                Log.v("test", "rest");
+            }
+        });
+        productRV.setAdapter(productListRVAdapter);
+
+    }
+
+    private  void initializeView(){
+        mySpinner = binding.mySpinner;
+        mySpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, categories));
+        brandSpinner = binding.brandSpinner;
+        brandSpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, brands));
+//
+        mySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView,View view, int position,long itemID){
+                if (position >= 0 && position < categories.size()){
+                    mySpinner.setSelection(position);
+                    queryCategory = categories.get(position);
+                    Log.d("onItemSelected", queryCategory);
+                    if (queryCategory == "All"){
+                        queryCategory ="";
+                    }
+                    else {
+                        getProducts();
+                        Log.d("onItemSelected", data.get(0).title + "");
+
+                    }
+
+
+                } else {
+                    Toast.makeText(getActivity(), "Selected Category does not exist", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView){
+
             }
         });
 
 
+        brandSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position >= 0 && position < brands.size()){
+                    queryBrand = brands.get(position);
+                    if (queryBrand == "All"){
+                        queryBrand ="";
+                    }else {
+                        getProducts();
+//                        productRV = binding.rv;
+//
+//
+//                        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
+//                        productRV.setLayoutManager(gridLayoutManager);
+//                        productListRVAdapter = new ProductListRVAdapter(data, new ProductListRVAdapter.OnItemClickListener() {
+//                            @Override
+//                            public void onItemClicked(ProductRVItemClass product) {
+//                            }
+//                        });
+//                        productRV.setAdapter(productListRVAdapter);
+                    }
+
+                    brandSpinner.setSelection(position);
+
+
+                } else {
+                    Toast.makeText(getActivity(), "Selected Brand does not exist", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+//       GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
+//       productRV.setLayoutManager(gridLayoutManager);
+
+
     }
-
-
     public void getProductImage(String imgName, ImageResponseCallback callback) {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(getActivity());
@@ -302,10 +347,18 @@ public class ProductListFragment extends Fragment  {
         queue.add(stringRequest);
     }
 
-    public void getProducts(String filter) {
+    public void getProducts() {
         String urlAPI = "http://"+constant.idAddress+"/api/v1/product/?brandID=2";
         Map<String, String> headers = new HashMap<>();
-        headers.put("BrandName", "acer");
+
+        if (queryCategory != "" || queryCategory != null){
+            headers.put("CategoryName", queryCategory);
+        }
+        if (queryBrand != "" || queryBrand != null) {
+            headers.put("BrandName", queryBrand);
+        }
+
+
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
                 new Response.Listener<String>() {
@@ -337,12 +390,12 @@ public class ProductListFragment extends Fragment  {
                                                 public void onItemClicked(ProductRVItemClass product) {
                                                 }
                                             });
-                                            productListRVAdapter.notifyDataSetChanged();
+//                                            productListRVAdapter.notifyDataSetChanged();
+
                                             GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
 
-                                            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false);
                                             productRV.setAdapter(productListRVAdapter);
-                                            productRV.setLayoutManager(gridLayoutManager);
+//                                            productRV.setLayoutManager(gridLayoutManager);
                                         }
 
                                         @Override
@@ -362,16 +415,16 @@ public class ProductListFragment extends Fragment  {
                             allImagesFuture.thenAccept(result -> {
                                 Log.v("list", data.toString());
                                 // Update the RecyclerView once all images are fetched
-                                productRV = binding.rv;
-                                productListRVAdapter = new ProductListRVAdapter(data, new ProductListRVAdapter.OnItemClickListener() {
-                                    @Override
-                                    public void onItemClicked(ProductRVItemClass product) {
-                                    }
-                                });
-                                productListRVAdapter.notifyDataSetChanged();
-                                LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.VERTICAL, false);
-                                productRV.setAdapter(productListRVAdapter);
-                                productRV.setLayoutManager(linearLayoutManager);
+//                                productRV = binding.rv;
+//                                productListRVAdapter = new ProductListRVAdapter(data, new ProductListRVAdapter.OnItemClickListener() {
+//                                    @Override
+//                                    public void onItemClicked(ProductRVItemClass product) {
+//                                    }
+//                                });
+                                if (productListRVAdapter != null) {
+                                    productListRVAdapter.notifyDataSetChanged();
+                                }
+
                             }).exceptionally(throwable -> {
                                 // Handle exceptions (if any) during the image retrieval process
                                 throwable.printStackTrace();
