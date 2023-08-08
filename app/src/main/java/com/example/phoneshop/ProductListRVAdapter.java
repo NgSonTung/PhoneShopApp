@@ -1,7 +1,6 @@
 package com.example.phoneshop;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +17,9 @@ import com.example.phoneshop.databinding.ProductItemVerticalBinding;
 
 import java.util.ArrayList;
 
-public class ProductListRVAdapter extends RecyclerView.Adapter<ProductListRVAdapter.MyHolder> {
+public class ProductListRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final int VIEW_TYPE_EMPTY = 0;
+    private static final int VIEW_TYPE_PRODUCT = 1;
 
     ArrayList<ProductRVItemClass> data;
     private LayoutInflater layoutInflater;
@@ -28,11 +29,20 @@ public class ProductListRVAdapter extends RecyclerView.Adapter<ProductListRVAdap
         void onItemClicked(ProductRVItemClass product);
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        if (data.isEmpty()) {
+            return VIEW_TYPE_EMPTY;
+        } else {
+            return VIEW_TYPE_PRODUCT;
+        }
+    }
+
     private ProductListRVAdapter.OnItemClickListener listener;
 
-    public ProductListRVAdapter( ArrayList<ProductRVItemClass> data, ProductListRVAdapter.OnItemClickListener listener) {
+    public ProductListRVAdapter(ArrayList<ProductRVItemClass> data, ProductListRVAdapter.OnItemClickListener listener) {
         this.data = data;
-        this.fragmentManager = fragmentManager;
+//        this.fragmentManager = fragmentManager;
         this.listener = listener;
     }
 
@@ -40,6 +50,7 @@ public class ProductListRVAdapter extends RecyclerView.Adapter<ProductListRVAdap
         ImageView img;
         TextView title, price, rating;
         ProductItemVerticalBinding binding;
+
         public MyHolder(View view) {
             super(view);
             binding = ProductItemVerticalBinding.bind(view);
@@ -50,36 +61,51 @@ public class ProductListRVAdapter extends RecyclerView.Adapter<ProductListRVAdap
         }
     }
 
+    class EmptyViewHolder extends RecyclerView.ViewHolder {
+        public EmptyViewHolder(@NonNull View itemView) {
+            super(itemView);
+            // Initialize the empty view here, if you want to show any specific message.
+            // ...
+        }
+    }
+
     @NonNull
     @Override
-    public ProductListRVAdapter.MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = layoutInflater.from(parent.getContext()).inflate(R.layout.product_item_vertical,parent,false);
-        return new ProductListRVAdapter.MyHolder(view);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == VIEW_TYPE_EMPTY) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_empty_view, parent, false);
+            return new EmptyViewHolder(view);
+        } else {
+            View view = layoutInflater.from(parent.getContext()).inflate(R.layout.product_item_vertical, parent, false);
+            return new MyHolder(view);
+        }
+
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ProductListRVAdapter.MyHolder holder, int position) {
-        final ProductRVItemClass product = data.get(position);
-        holder.img.setImageBitmap(data.get(position).getImageID());
-        holder.title.setText(data.get(position).getTitle());
-        holder.price.setText(data.get(position).getPrice() + " đ");
-        holder.rating.setText(data.get(position).getRating() + " đánh giá");
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof MyHolder) {
+            ProductRVItemClass product = data.get(position);
+            MyHolder myHolder = (MyHolder) holder;
+            myHolder.img.setImageBitmap(data.get(position).getImageID());
+            myHolder.title.setText(data.get(position).getTitle());
+            myHolder.price.setText(data.get(position).getPrice() + " đ");
+            myHolder.rating.setText(data.get(position).getRating() + " đánh giá");
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int position = holder.getAdapterPosition();
-                if (position != RecyclerView.NO_POSITION) {
-                    listener.onItemClicked(data.get(position));
+            myHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = myHolder.getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        listener.onItemClicked(data.get(position));
+                    }
                 }
-            }
-        });
-
+            });
+        }
     }
 
     private void openDetailActivity(ProductRVItemClass product) {
         Fragment_Details fm = new Fragment_Details();
-        Log.v("fm", product.getImageID().toString());
         Bundle bundle = new Bundle();
         bundle.putString("product_name", product.getTitle());
         bundle.putString("price", product.getPrice());
@@ -95,11 +121,6 @@ public class ProductListRVAdapter extends RecyclerView.Adapter<ProductListRVAdap
 
     @Override
     public int getItemCount() {
-        synchronized (data) {
-            return data.size();
-        }
-
+        return data.isEmpty() ? 1 : data.size();
     }
-
-
 }

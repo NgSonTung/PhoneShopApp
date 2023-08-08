@@ -415,6 +415,7 @@ public class ProductListFragment extends Fragment  {
     }
 
     public void getProducts() {
+//        data = new ArrayList<>();
         String urlAPI = "http://"+constant.idAddress+"/api/v1/product";
         Map<String, String> headers = new HashMap<>();
 
@@ -437,6 +438,7 @@ public class ProductListFragment extends Fragment  {
             headers.put("Name", queryName);
 
         }
+        ArrayList<ProductRVItemClass> t = new ArrayList<>();
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
                 new Response.Listener<String>() {
@@ -465,16 +467,17 @@ public class ProductListFragment extends Fragment  {
                                         public void onImageReceived(Bitmap bitmap) {
                                             ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating, description);
                                             data.add(product);
+                                            t.add(product);
+                                            productListRVAdapter.notifyDataSetChanged();
+                                            Log.d("TAG", "data" + data.toString());
 
-                                            getActivity().runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    if (data.size() > 0){
-                                                        productListRVAdapter.notifyDataSetChanged();
-
-                                                    }
-                                                }
-                                            });
+//                                            getActivity().runOnUiThread(new Runnable() {
+//                                                @Override
+//                                                public void run() {
+//
+//                                                    Log.d("TAG", "data" + data.toString());
+//                                                }
+//                                            });
                                         }
 
                                         @Override
@@ -492,8 +495,6 @@ public class ProductListFragment extends Fragment  {
 
                             // Add a callback to update RecyclerView when all images are fetched
                             allImagesFuture.thenAccept(result -> {
-                                Log.v("list", data.toString());
-
 
 
                             }).exceptionally(throwable -> {
@@ -501,6 +502,8 @@ public class ProductListFragment extends Fragment  {
                                 throwable.printStackTrace();
                                 return null;
                             });
+
+
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -517,9 +520,14 @@ public class ProductListFragment extends Fragment  {
                 return headers;
             }
         };
-
+        if (t.size() ==0){
+            Log.d("ccc", "onResponse: ");
+        }
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         queue.add(stringRequest);
+
+
+
     }
 
     private CompletableFuture<Void> getCategories() {
