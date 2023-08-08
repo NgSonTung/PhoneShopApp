@@ -48,8 +48,8 @@ public class OrderRVAdapter  extends  RecyclerView.Adapter<OrderRVAdapter.MyHold
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
 
         holder.title.setText("Trạng thái: "+data.get(position).getTitle());
-        holder.price.setText(data.get(position).getPrice() + " đ");
-        holder.amount.setText("x"+data.get(position).getAmount() +"");
+        holder.price.setText("Tổng tiền: "+data.get(position).getPrice() + " đ");
+        holder.amount.setText("Số sản phẩm: "+data.get(position).getAmount() +"");
         holder.point.setText("Phương thức thanh toán: \n"+data.get(position).getPoint() + "");
         holder.createAt.setText(data.get(position).getCreateAt());
     }

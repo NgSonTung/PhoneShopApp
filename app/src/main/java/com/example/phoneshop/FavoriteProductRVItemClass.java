@@ -1,17 +1,25 @@
 package com.example.phoneshop;
 
+import android.graphics.Bitmap;
+
 import java.util.ArrayList;
 
 public class FavoriteProductRVItemClass {
-    int imageID;
+    Bitmap imageID;
     String title;
     String price;
 
-    public int getImageID() {
+    public FavoriteProductRVItemClass(Bitmap imageID, String title, String price) {
+        this.imageID = imageID;
+        this.title = title;
+        this.price = price;
+    }
+
+    public Bitmap getImageID() {
         return imageID;
     }
 
-    public void setImageID(int imageID) {
+    public void setImageID(Bitmap imageID) {
         this.imageID = imageID;
     }
 
@@ -31,14 +39,7 @@ public class FavoriteProductRVItemClass {
         this.price = price;
     }
 
-    public FavoriteProductRVItemClass(int imageID, String title, String price) {
-        this.imageID = imageID;
-        this.title = title;
-        this.price = price;
-    }
-
-
-    public static ArrayList<FavoriteProductRVItemClass> initData(int[] imageList, String[] titleList, String[] priceList) {
+    public static ArrayList<FavoriteProductRVItemClass> initData(Bitmap[] imageList, String[] titleList, String[] priceList) {
 
         ArrayList<FavoriteProductRVItemClass> arrList = new ArrayList<>();
 

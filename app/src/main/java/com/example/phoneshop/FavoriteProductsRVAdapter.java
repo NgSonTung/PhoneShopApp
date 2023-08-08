@@ -17,9 +17,12 @@ public class FavoriteProductsRVAdapter extends RecyclerView.Adapter<FavoriteProd
 
     FavoriteItemLayoutBinding binding;
     ArrayList<FavoriteProductRVItemClass> data;
-
-    public FavoriteProductsRVAdapter(ArrayList<FavoriteProductRVItemClass> data) {
+    public interface OnItemClickListener {
+        void onItemClicked(FavoriteProductRVItemClass product);
+    }
+    public FavoriteProductsRVAdapter(ArrayList<FavoriteProductRVItemClass> data, OnItemClickListener listener) {
         this.data = data;
+        this.listener = listener;
     }
 
     class MyHolder extends RecyclerView.ViewHolder {
@@ -34,6 +37,7 @@ public class FavoriteProductsRVAdapter extends RecyclerView.Adapter<FavoriteProd
             price = binding.favoritePrice;
         }
     }
+    private FavoriteProductsRVAdapter.OnItemClickListener listener;
 
     @NonNull
     @Override
@@ -44,9 +48,20 @@ public class FavoriteProductsRVAdapter extends RecyclerView.Adapter<FavoriteProd
 
     @Override
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
-        holder.img.setImageResource(data.get(position).getImageID());
+        final FavoriteProductRVItemClass product = data.get(position);
+        holder.img.setImageBitmap(data.get(position).getImageID());
         holder.title.setText(data.get(position).getTitle());
         holder.price.setText(data.get(position).getPrice() + " đ");
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int position = holder.getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    listener.onItemClicked(data.get(position));
+                }
+            }
+        });
     }
 
     @Override

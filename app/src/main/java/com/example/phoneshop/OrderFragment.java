@@ -130,10 +130,8 @@ public class OrderFragment extends Fragment {
                             JSONObject resObj = new JSONObject(response);
                             JSONObject dataObj = resObj.getJSONObject("Data");
                             JSONArray dataArray = dataObj.getJSONArray("Data");
-                            Log.v("CCCCCCCCCCCCCCCCNEEEEEEEE", response);
                             for (int i = 0; i < dataArray.length(); i++) {
                                 JSONObject productObj = dataArray.getJSONObject(i);
-                                Log.v("product NEEEEEEEE", productObj.toString());
                                 String statusName = productObj.getString("StatusName");
                                 int totalAmount = productObj.getInt("TotalAmount");
                                 String totalPrice = productObj.getString("TotalPrice");

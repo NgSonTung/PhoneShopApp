@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.phoneshop.databinding.FragmentFavoriteProductsBinding;
+import com.example.phoneshop.databinding.FragmentPersonalBinding;
 
 import java.util.ArrayList;
 
@@ -70,8 +71,6 @@ public class FavoriteProductsFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
-        Log.v("tét", "tét");
     }
 
     @Override
@@ -86,23 +85,23 @@ public class FavoriteProductsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         favoriteRV = binding.favoriteFrag;
         FavoriteRVInit();
-        FavoriteProductsRVAdapter = new FavoriteProductsRVAdapter(data);
-        FavoriteProductsRVAdapter.notifyDataSetChanged();
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
-        favoriteRV.setAdapter(FavoriteProductsRVAdapter);
-        favoriteRV.setLayoutManager(gridLayoutManager);
-
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        Fragment headerFavoriteFragment = new HeaderFavoriteFragment();
-        fragmentTransaction.replace(R.id.fragmentContainerView, headerFavoriteFragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
+//        FavoriteProductsRVAdapter = new FavoriteProductsRVAdapter(data);
+//        FavoriteProductsRVAdapter.notifyDataSetChanged();
+//        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
+//        favoriteRV.setAdapter(FavoriteProductsRVAdapter);
+//        favoriteRV.setLayoutManager(gridLayoutManager);
+//
+//        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//        Fragment headerFavoriteFragment = new HeaderFavoriteFragment();
+//        fragmentTransaction.replace(R.id.fragmentContainerView, headerFavoriteFragment);
+//        fragmentTransaction.addToBackStack(null);
+//        fragmentTransaction.commit();
     }
 
     private void FavoriteRVInit (){
-        data.add( new FavoriteProductRVItemClass(R.drawable.productimg,"RAM Kingston Fury Beast 16GB Bus 3200 MHz","929.000 "));
-        data.add( new FavoriteProductRVItemClass(R.drawable.productimg,"Tai Nghe Gaming ADATA XPG EMIX H20","929.000 "));
-        data.add( new FavoriteProductRVItemClass(R.drawable.productimg,"RAM PNY XLR8 DDR4 8GB 3200MHz LONGDIMM (MD8GD4320016XR)","929.000 "));
+//        data.add( new FavoriteProductRVItemClass(R.drawable.productimg,"RAM Kingston Fury Beast 16GB Bus 3200 MHz","929.000 "));
+//        data.add( new FavoriteProductRVItemClass(R.drawable.productimg,"Tai Nghe Gaming ADATA XPG EMIX H20","929.000 "));
+//        data.add( new FavoriteProductRVItemClass(R.drawable.productimg,"RAM PNY XLR8 DDR4 8GB 3200MHz LONGDIMM (MD8GD4320016XR)","929.000 "));
     }
 }

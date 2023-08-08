@@ -3,10 +3,17 @@ package com.example.phoneshop;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
+
+import com.example.phoneshop.databinding.FragmentHeaderPersonalBinding;
+import com.example.phoneshop.databinding.FragmentPersonalBinding;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -14,6 +21,7 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class HeaderPersonal extends Fragment {
+    FragmentHeaderPersonalBinding binding;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -59,6 +67,19 @@ public class HeaderPersonal extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_header_personal, container, false);
+        binding = FragmentHeaderPersonalBinding.inflate(inflater, container, false);
+        ImageButton cartBtn = binding.btnCartPersonal;
+        cartBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                Fragment cartFragment = new CartFragment();
+                fragmentTransaction.replace(R.id.layoutFragment, cartFragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            }
+        });
+        return binding.getRoot();
     }
 }

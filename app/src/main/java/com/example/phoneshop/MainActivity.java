@@ -40,8 +40,8 @@ public class MainActivity extends AppCompatActivity {
         //fragmentLayout = (Fragment) findViewById(R.id.layoutFragment) ;
        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.menu_navigation);
         loadHeaderFragment(new HeaderFragment());
-//        loadFragment(new FragmentHome());
-        loadFragment(new ProductListFragment());
+        loadFragment(new FragmentHome());
+//        loadFragment(new ProductListFragment());
 
 
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
