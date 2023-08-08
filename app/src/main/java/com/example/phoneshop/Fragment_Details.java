@@ -17,7 +17,17 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.phoneshop.databinding.FragmentDetailsBinding;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +37,7 @@ public class Fragment_Details extends Fragment {
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    ArrayList<String> imgList = new ArrayList<>();
 
     private String mParam1;
     private String mParam2;
@@ -42,7 +53,6 @@ public class Fragment_Details extends Fragment {
     TextView detailTitle;
     TextView product_price;
 
-    ArrayList<Integer> imgList = new ArrayList<Integer>();
     public Fragment_Details() {
         // Required empty public constructor
     }
@@ -73,13 +83,7 @@ public class Fragment_Details extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 //        productImgRV = binding.detailRVMain;
         subImgRV = binding.detailRVSub;
-        imgList = new ArrayList<>(Arrays.asList(R.drawable.productimg, R.drawable.productimg, R.drawable.productimg, R.drawable.productimg, R.drawable.productimg, R.drawable.productimg));
 
-//        productImgRVAdapter = new ProductImgRVAdapter(imgList);
-////        productImgRVAdapter.notifyDataSetChanged();
-////        LinearLayoutManager productImgManager = new LinearLayoutManager(requireActivity(), LinearLayoutManager.HORIZONTAL,false);
-////        productImgRV.setAdapter(productImgRVAdapter);
-////        productImgRV.setLayoutManager(productImgManager);
 
         subImgRVAdapter = new SubImgRVAdapter(imgList);
         subImgRVAdapter.notifyDataSetChanged();
@@ -94,6 +98,7 @@ public class Fragment_Details extends Fragment {
             String price = args.getString("price");
             String rating = args.getString("rating");
             String description = args.getString("description");
+            String productID = args.getString("product_id");
             Log.v("data", args.toString());
             // Convert the byte[] back to Bitmap
             Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
@@ -106,6 +111,7 @@ public class Fragment_Details extends Fragment {
             detailTitle.setText(productName);
             product_price = view.findViewById(R.id.product_price);
             product_price.setText(price);
+            getSubImgs(productID);
 
             // Now, you can use the bitmap as needed.
             // For example, you can display it in an ImageView:
@@ -113,4 +119,36 @@ public class Fragment_Details extends Fragment {
 //            imageView.setImageBitmap(bitmap);
         }
     }
+
+    public void getSubImgs(String productID) {
+        String urlAPI = "http://" + Constant.idAddress + "/api/v1/subimg/product/" + productID;
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONObject resObj = new JSONObject(response);
+                            JSONArray dataArray = resObj.getJSONArray("Data");
+                            for (int i = 0; i < dataArray.length(); i++) {
+                                JSONObject productObj = dataArray.getJSONObject(i);
+                                String img64 = productObj.getString("base64");
+                                imgList.add(img64);
+                            }
+                            subImgRVAdapter.setData(imgList);
+                            subImgRVAdapter.notifyDataSetChanged();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.v("Error api ne", error.toString());
+            }
+        });
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        queue.add(stringRequest);
+    }
+
 }

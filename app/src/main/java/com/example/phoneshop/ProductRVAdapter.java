@@ -27,20 +27,22 @@ import java.util.ArrayList;
 public class ProductRVAdapter extends RecyclerView.Adapter<ProductRVAdapter.MyHolder> {
 
     ProductItemLayoutBinding binding;
+    String productID;
     ArrayList<ProductRVItemClass> data;
     private LayoutInflater layoutInflater;
     private FragmentManager fragmentManager;
 
     public interface OnItemClickListener {
-        void onItemClicked(ProductRVItemClass product);
+        void onItemClicked(ProductRVItemClass product, String productID);
     }
 
     private OnItemClickListener listener;
 
-    public ProductRVAdapter( ArrayList<ProductRVItemClass> data, OnItemClickListener listener) {
+    public ProductRVAdapter( ArrayList<ProductRVItemClass> data,String productID, OnItemClickListener listener) {
         this.data = data;
         this.fragmentManager = fragmentManager;
         this.listener = listener;
+        this.productID = productID;
     }
 
     class MyHolder extends RecyclerView.ViewHolder {
@@ -77,7 +79,7 @@ public class ProductRVAdapter extends RecyclerView.Adapter<ProductRVAdapter.MyHo
             public void onClick(View v) {
                 int position = holder.getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
-                    listener.onItemClicked(data.get(position));
+                    listener.onItemClicked(data.get(position),productID);
                 }
             }
         });

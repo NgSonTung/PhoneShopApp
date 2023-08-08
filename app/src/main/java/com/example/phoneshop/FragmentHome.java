@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -42,7 +43,9 @@ import java.io.ByteArrayOutputStream;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemClickListener {
@@ -270,7 +273,7 @@ public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemCli
     public void getIphoneProducts() {
         // Instantiate the RequestQueue.
 //        RequestQueue queue = Volley.newRequestQueue(getActivity());
-        String urlAPI = "http://"+constantVar.idAddress+"/api/v1/product/?brandID=2";
+        String urlAPI = "http://"+constantVar.idAddress+"/api/v1/product";
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
@@ -286,6 +289,7 @@ public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemCli
                             for (int i = 0; i < dataArray.length(); i++) {
                                 JSONObject productObj = dataArray.getJSONObject(i);
                                 Log.v("product", productObj.toString());
+                                String productID = productObj.getString("ProductID");
                                 String imgName = productObj.getString("Image");
                                 String title = productObj.getString("Name");
                                 String price = productObj.getString("Price");
@@ -300,10 +304,12 @@ public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemCli
                                             ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating, description);
                                             iphoneProductList.add(product);
                                             productRV = binding.productRecycleView;
-                                            productRVAdapter = new ProductRVAdapter(iphoneProductList, new ProductRVAdapter.OnItemClickListener() {
+                                            productRVAdapter = new ProductRVAdapter(iphoneProductList,productID, new ProductRVAdapter.OnItemClickListener() {
                                                 @Override
-                                                public void onItemClicked(ProductRVItemClass product) {
-                                                    openDetailFragment(product);
+                                                public void onItemClicked(ProductRVItemClass product, String productID) {
+                                                    Log.d("PRODUCT ID ACACACA", productID);
+
+                                                    openDetailFragment(product, productID);
                                                 }
                                             });
                                             productRVAdapter.notifyDataSetChanged();
@@ -355,7 +361,14 @@ public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemCli
             public void onErrorResponse(VolleyError error) {
                 Log.v("Error api ne", error.toString());
             }
-        });
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("BrandName", "samsung");
+                return headers;
+            }
+        };
 
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         queue.add(stringRequest);
@@ -363,12 +376,12 @@ public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemCli
 
     // Implement the onItemClick method from the interface
     @Override
-    public void onItemClicked(ProductRVItemClass product) {
-        openDetailFragment(product);
+    public void onItemClicked(ProductRVItemClass product, String productID) {
+        openDetailFragment(product, productID);
     }
 
     // Method to replace the fragment in the 'productdetailfrag' container
-    private void openDetailFragment(ProductRVItemClass product) {
+    private void openDetailFragment(ProductRVItemClass product, String productID) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         product.getImageID().compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] byteArray = stream.toByteArray();
@@ -381,6 +394,8 @@ public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemCli
         bundle.putString("price", product.getPrice());
         bundle.putString("rating", product.getRating());
         bundle.putString("description", product.getDescription());
+        bundle.putString("product_id", productID); //DOSUBIMGGG
+        Log.d("PRODUCT ID LAAA", productID);
         fmg.setArguments(bundle);
 
         FragmentManager  fragmentManager = activity.getSupportFragmentManager();
