@@ -1,12 +1,12 @@
 package com.example.phoneshop;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,24 +28,27 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.android.volley.Response;
 import com.example.phoneshop.databinding.FragmentProductListBinding;
+import com.google.android.material.slider.RangeSlider;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import android.util.Base64;
 
 
-public class ProductListFragment extends Fragment {
+public class ProductListFragment extends Fragment  {
 
     FragmentProductListBinding binding;
     ArrayList<ProductRVItemClass> data = new ArrayList<>();
@@ -56,15 +59,16 @@ public class ProductListFragment extends Fragment {
     Constant constant = new Constant();
     //Spinner
     ListView myListview;
-    Spinner cateSpinner, brandSpinner;
+    Spinner cateSpinner,brandSpinner;
     List<CompletableFuture<Void>> listQueue = new ArrayList<>();
+
 
 
     ArrayList<String> categories = new ArrayList<>();
     ArrayList<String> brands = new ArrayList<>();
-    String queryCategory = "", queryBrand = "", queryPriceMin = "", queryPriceMax = "", queryName = "";
+    String queryCategory = "" ,queryBrand = "",queryPriceMin ="",queryPriceMax = "",queryName ="";
 
-    EditText tbPriceMin, tbPriceMax;
+    EditText tbPriceMin,tbPriceMax;
 
     boolean isPriceMinDelayPending = false;
     Handler priceMinHandler = new Handler();
@@ -76,11 +80,11 @@ public class ProductListFragment extends Fragment {
                 // Perform the action you want after the specified delay
                 Log.d("tbPriceMin", "tbPriceMin.getText(): " + tbPriceMin.getText());
                 String q = tbPriceMin.getText().toString();
-                if (q.length() > 0) {
+                if (q.length() > 0){
                     queryPriceMin = q;
                     data.clear();
                     getProducts();
-                } else {
+                }else {
                     queryPriceMin = "";
 
                 }
@@ -99,11 +103,11 @@ public class ProductListFragment extends Fragment {
                 // Perform the action you want after the specified delay
                 Log.d("tbPriceMax", "tbPriceMax.getText(): " + tbPriceMax.getText());
                 String q = tbPriceMax.getText().toString();
-                if (q.length() > 0) {
+                if (q.length() > 0){
                     queryPriceMax = q;
                     data.clear();
                     getProducts();
-                } else {
+                }else {
                     queryPriceMax = "";
 
                 }
@@ -115,7 +119,7 @@ public class ProductListFragment extends Fragment {
 
     class Category {
         private String categoryID;
-        private String categoryName;
+        private  String categoryName;
 
         public String getCategoryID() {
             return categoryID;
@@ -133,14 +137,14 @@ public class ProductListFragment extends Fragment {
             this.categoryName = categoryName;
         }
 
-        public Category(String categoryID, String categoryName) {
+        public Category(String categoryID, String categoryName  ){
             this.categoryID = categoryID;
             this.categoryName = categoryName;
         }
     }
 
     class Brands {
-        String brandID, brandName;
+        String brandID , brandName;
 
         public Brands(String brandID, String brandName) {
             this.brandID = brandID;
@@ -197,24 +201,35 @@ public class ProductListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = FragmentProductListBinding.inflate(inflater, container, false);
+        binding = FragmentProductListBinding.inflate(inflater,container ,false);
         return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        productRV = binding.rv;
-
         categories.add("All");
         brands.add("All");
+        getProducts();
         getCategories();
         getBrands();
+        CompletableFuture<Void> allQueue = CompletableFuture.allOf(listQueue.toArray(new CompletableFuture[0]));
+        allQueue.thenAccept(result -> {
+            // The categories are fetched successfully
 
-        initializeView();
+            initializeView();
+
+            // Notify the spinner adapter about the updated categories
+        }).exceptionally(throwable -> {
+            // Handle the exception if an error occurs while fetching categories
+            Log.e("Error", "Failed to fetch : " + throwable.getMessage());
+            return null;
+        });
 
 
-
+        productRV = binding.rv;
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
+        productRV.setLayoutManager(gridLayoutManager);
 
         // Adapter setup should be done here regardless of data being empty or not
         productListRVAdapter = new ProductListRVAdapter(data, new ProductListRVAdapter.OnItemClickListener() {
@@ -223,60 +238,50 @@ public class ProductListFragment extends Fragment {
                 // Handle item click if needed
             }
         });
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
-        productRV.setLayoutManager(gridLayoutManager);
         productRV.setAdapter(productListRVAdapter);
-        getProducts();
+
+
+
     }
 
-    private void initializeView() {
+    private  void initializeView(){
         cateSpinner = binding.mySpinner;
-        ArrayAdapter<String> cateArrayAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, categories);
-        cateSpinner.setAdapter(cateArrayAdapter);
+        cateSpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, categories));
         brandSpinner = binding.brandSpinner;
-        ArrayAdapter<String> brandArrayAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, brands);
-        brandSpinner.setAdapter(brandArrayAdapter);
-        getActivity().runOnUiThread(new Runnable() {
+        brandSpinner.setAdapter(new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, brands));
+//
+        cateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
             @Override
-            public void run() {
-                // Update categories ArrayList and notify ArrayAdapter here
-                cateArrayAdapter.notifyDataSetChanged();
-                brandArrayAdapter.notifyDataSetChanged();
-            }
-        });
+            public void onItemSelected(AdapterView<?> adapterView,View view, int position,long itemID){
 
-        cateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long itemID) {
-                Log.d("SELECTTTTTTTTTTT", "SELECT NE DMASDASDSA");
-                if (position >= 0 && position < categories.size()) {
+                if (position >= 0 && position < categories.size()){
 //                    cateSpinner.setSelection(position);
 
-                    if (!categories.get(Integer.parseInt(itemID + "")).equals("All")) {
+                    if (categories.get(Integer.parseInt(itemID +"")) != "All"){
 
-                        queryCategory = categories.get(position).toString();
-                        Log.d("onItemSelected", categories.get(Integer.parseInt(itemID + "")) + "");
+                        queryCategory =categories.get(position).toString();
+                        Log.d("onItemSelected", categories.get(Integer.parseInt(itemID +"")) +"");
                         ArrayList<ProductRVItemClass> oldData = data;
                         data.clear();
                         getProducts();
 //                        handleSupportCheckData(oldData,data);
 
-                    } else {
-                        queryCategory = "";
+//                        productListRVAdapter.notifyDataSetChanged();
+                    }
+                    else {
+                        queryCategory ="";
                         data.clear();
 
                         getProducts();
 
                     }
-                    productListRVAdapter.notifyDataSetChanged();
 
                 } else {
                     Toast.makeText(getActivity(), "Selected Category does not exist", Toast.LENGTH_SHORT).show();
                 }
             }
-
             @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
+            public void onNothingSelected(AdapterView<?> adapterView){
 
             }
         });
@@ -285,21 +290,22 @@ public class ProductListFragment extends Fragment {
         brandSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position >= 0 && position < brands.size()) {
+                if (position >= 0 && position < brands.size()){
                     queryBrand = brands.get(position);
-                    if (!brands.get(Integer.parseInt(id + "")).equals("All")) {
+                    if (brands.get(Integer.parseInt(id +"")) != "All"){
 
-                        queryBrand = brands.get(position).toString();
+                        queryBrand =brands.get(position).toString();
                         data.clear();
                         getProducts();
-                    } else {
-                        queryBrand = "";
+//                        productListRVAdapter.notifyDataSetChanged();
+                    }
+                    else {
+                        queryBrand ="";
                         data.clear();
 
                         getProducts();
 
                     }
-                    productListRVAdapter.notifyDataSetChanged();
 
                 } else {
                     Toast.makeText(getActivity(), "Selected Brand does not exist", Toast.LENGTH_SHORT).show();
@@ -339,6 +345,7 @@ public class ProductListFragment extends Fragment {
             }
 
 
+
         });
 
         tbPriceMax.addTextChangedListener(new TextWatcher() {
@@ -365,17 +372,19 @@ public class ProductListFragment extends Fragment {
             }
 
 
+
         });
 
         Log.d("dataObj", "onResponse: " + data.toString());
 
 
-    }
 
+
+    }
     public void getProductImage(String imgName, ImageResponseCallback callback) {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(getActivity());
-        String url = "http://" + constant.idAddress + "/api/v1/product/image/" + imgName;
+        String url = "http://"+constant.idAddress+"/api/v1/product/image/" + imgName;
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -407,31 +416,25 @@ public class ProductListFragment extends Fragment {
 
     public void getProducts() {
 //        data = new ArrayList<>();
-        String urlAPI = "http://" + constant.idAddress + "/api/v1/product";
+        String urlAPI = "http://"+constant.idAddress+"/api/v1/product";
         Map<String, String> headers = new HashMap<>();
-        Log.d("FILTER", queryCategory);
 
-        if (queryCategory != "") {
+        if (queryCategory != "" ){
             headers.put("CategoryName", queryCategory);
         }
-        Log.d("FILTER", queryBrand);
-
-        if (queryBrand != "") {
-
+        if (queryBrand != "" ) {
             headers.put("BrandName", queryBrand);
         }
+        if (queryPriceMin !=""  ){
 
-        if (queryPriceMin != "") {
-
-            headers.put("Price", "gte:" + queryPriceMin);
+            headers.put("Price", "gte:"+queryPriceMin);
 
         }
-        if (queryPriceMax != "") {
-            headers.put("Price", "lt:" + queryPriceMax);
+        Log.d("queryPriceMax", (queryPriceMax != null ) +"");
+        if ( queryPriceMax != "" ){
+            headers.put("Price", "lt:"+queryPriceMax);
         }
-        Log.d("FILTER", queryName);
-        if (queryName != "") {
-
+        if (queryName!=""){
             headers.put("Name", queryName);
 
         }
@@ -445,7 +448,7 @@ public class ProductListFragment extends Fragment {
                             JSONObject dataObj = new JSONObject(response);
                             JSONArray dataArray = dataObj.getJSONArray("Data");
                             List<CompletableFuture<Void>> imageFutures = new ArrayList<>();
-                            if (dataArray.length() == 0) {
+                            if (dataArray.length() ==0){
                                 return;
                             }
                             for (int i = 0; i < dataArray.length(); i++) {
@@ -463,15 +466,10 @@ public class ProductListFragment extends Fragment {
                                         @Override
                                         public void onImageReceived(Bitmap bitmap) {
                                             ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating, description);
-                                            getActivity().runOnUiThread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    data.add(product);
-
-                                                }
-                                            });
+                                            data.add(product);
                                             t.add(product);
-
+                                            productListRVAdapter.notifyDataSetChanged();
+                                            Log.d("TAG", "data" + data.toString());
 
 //                                            getActivity().runOnUiThread(new Runnable() {
 //                                                @Override
@@ -497,14 +495,14 @@ public class ProductListFragment extends Fragment {
 
                             // Add a callback to update RecyclerView when all images are fetched
                             allImagesFuture.thenAccept(result -> {
-                                productListRVAdapter.notifyDataSetChanged();
-                                Log.d("CCCCCCCCCCCCCCCCC", "data" + data.toString());
+
 
                             }).exceptionally(throwable -> {
                                 // Handle exceptions (if any) during the image retrieval process
                                 throwable.printStackTrace();
                                 return null;
                             });
+
 
 
                         } catch (JSONException e) {
@@ -516,19 +514,18 @@ public class ProductListFragment extends Fragment {
             public void onErrorResponse(VolleyError error) {
                 Log.v("Error api ne", error.toString());
             }
-
         }) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return headers;
             }
         };
-        if (t.size() == 0) {
+        if (t.size() ==0){
             Log.d("ccc", "onResponse: ");
         }
-
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         queue.add(stringRequest);
+
 
 
     }
@@ -604,11 +601,12 @@ public class ProductListFragment extends Fragment {
         return future;
     }
 
-    public void handleSupportCheckData(ArrayList<ProductRVItemClass> oldData, ArrayList<ProductRVItemClass> newData) {
-        if (newData.size() == 0) {
+    public void handleSupportCheckData(ArrayList<ProductRVItemClass> oldData, ArrayList<ProductRVItemClass> newData){
+        if (newData.size() == 0){
             data = oldData;
         }
     }
+
 
 
 }
