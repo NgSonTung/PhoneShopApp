@@ -3,10 +3,16 @@ package com.example.phoneshop;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+
+import com.example.phoneshop.databinding.FragmentHeaderCartBinding;
+import com.example.phoneshop.databinding.FragmentHeaderFavoriteBinding;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -45,6 +51,7 @@ public class HeaderCartFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
+    FragmentHeaderCartBinding binding;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,6 +66,30 @@ public class HeaderCartFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_header_cart, container, false);
+        binding = FragmentHeaderCartBinding.inflate(inflater, container, false);
+        ImageButton cartBtn = binding.btnCartPersonal;
+        ImageButton backBTn = binding.imageButton3;
+
+        backBTn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                fragmentManager.popBackStack();
+                fragmentManager.popBackStack();
+            }
+        });
+        cartBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                Fragment cartFragment = new CartFragment();
+                fragmentTransaction.replace(R.id.layoutFragment, cartFragment);
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            }
+        });
+
+        return binding.getRoot();
     }
 }

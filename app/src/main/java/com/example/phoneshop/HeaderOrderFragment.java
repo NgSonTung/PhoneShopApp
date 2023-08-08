@@ -68,6 +68,16 @@ public class HeaderOrderFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentHeaderOrderBinding.inflate(inflater, container, false);
         ImageButton cartBtn = binding.btnCartPersonal;
+        ImageButton backBTn = binding.imageButton3;
+
+        backBTn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                fragmentManager.popBackStack();
+                fragmentManager.popBackStack();
+            }
+        });
         cartBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

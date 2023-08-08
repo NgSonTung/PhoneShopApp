@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 
 import com.example.phoneshop.databinding.FragmentFavoriteProductsBinding;
+import com.example.phoneshop.databinding.FragmentHeaderFavoriteBinding;
 import com.example.phoneshop.databinding.FragmentHeaderPersonalBinding;
 
 /**
@@ -59,14 +60,24 @@ public class HeaderFavoriteFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
-    FragmentHeaderPersonalBinding binding;
+    FragmentHeaderFavoriteBinding binding;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        binding = FragmentHeaderPersonalBinding.inflate(inflater, container, false);
+        binding = FragmentHeaderFavoriteBinding.inflate(inflater, container, false);
         ImageButton cartBtn = binding.btnCartPersonal;
+        ImageButton backBTn = binding.imageButton3;
+
+        backBTn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                fragmentManager.popBackStack();
+                fragmentManager.popBackStack();
+            }
+        });
         cartBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,6 +89,7 @@ public class HeaderFavoriteFragment extends Fragment {
                 fragmentTransaction.commit();
             }
         });
+
         return binding.getRoot();
     }
 }
