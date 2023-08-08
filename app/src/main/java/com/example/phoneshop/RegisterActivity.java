@@ -74,7 +74,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     public void register(String username, String password, String repeat, String email) {
-        String endPoint = "http://10.0.2.2:3001/api/v1/user/signup";
+        String endPoint = "http://"+Constant.idAddress+"/api/v1/user/signup";
 
         if (!password.equals(repeat)){
             Toast.makeText(RegisterActivity.this, "repeat and password do not match!", Toast.LENGTH_SHORT).show();

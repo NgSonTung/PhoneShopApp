@@ -76,7 +76,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void login(String username, String password) {
-        String endPoint = "http://10.0.2.2:3001/api/v1/user/login";
+        String endPoint = "http://"+Constant.idAddress+"/api/v1/user/login";
 
         // Create the login request body as a JSON object
         JSONObject requestBody = new JSONObject();
