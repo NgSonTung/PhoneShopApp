@@ -20,7 +20,6 @@ import java.util.ArrayList;
 
 public class ProductListRVAdapter extends RecyclerView.Adapter<ProductListRVAdapter.MyHolder> {
 
-    ProductItemVerticalBinding binding;
     ArrayList<ProductRVItemClass> data;
     private LayoutInflater layoutInflater;
     private FragmentManager fragmentManager;
@@ -40,7 +39,7 @@ public class ProductListRVAdapter extends RecyclerView.Adapter<ProductListRVAdap
     class MyHolder extends RecyclerView.ViewHolder {
         ImageView img;
         TextView title, price, rating;
-
+        ProductItemVerticalBinding binding;
         public MyHolder(View view) {
             super(view);
             binding = ProductItemVerticalBinding.bind(view);
@@ -96,7 +95,10 @@ public class ProductListRVAdapter extends RecyclerView.Adapter<ProductListRVAdap
 
     @Override
     public int getItemCount() {
-        return data.size();
+        synchronized (data) {
+            return data.size();
+        }
+
     }
 
 

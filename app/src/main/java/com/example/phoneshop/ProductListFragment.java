@@ -1,10 +1,12 @@
 package com.example.phoneshop;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.content.Intent;
-import android.graphics.drawable.shapes.Shape;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,11 +14,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ListAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -24,7 +23,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
@@ -35,20 +33,18 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.android.volley.Response;
 import com.example.phoneshop.databinding.FragmentProductListBinding;
+import com.google.android.material.slider.RangeSlider;
 
-import org.chromium.net.CronetEngine;
-import org.chromium.net.UrlRequest;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import android.util.Base64;
 
 
@@ -66,56 +62,60 @@ public class ProductListFragment extends Fragment  {
     Spinner cateSpinner,brandSpinner;
     List<CompletableFuture<Void>> listQueue = new ArrayList<>();
 
-    ArrayAdapter<arr> adapter;
 
 
     ArrayList<String> categories = new ArrayList<>();
     ArrayList<String> brands = new ArrayList<>();
-    String queryCategory ,queryBrand;
+    String queryCategory = "" ,queryBrand = "",queryPriceMin ="",queryPriceMax = "",queryName ="";
 
+    EditText tbPriceMin,tbPriceMax;
 
-
-//    private ArrayList<arr> getCosmicBodies(){
-//        ArrayList<arr> data = new ArrayList<>();
-//        data.clear();
-//        data.add(new arr("KingSton", 1));
-//        data.add(new arr("acer", 2));
-//        data.add(new arr("apple", 1));
-//        data.add(new arr("asus", 1));
-//        data.add(new arr("ava", 2));
-//        data.add(new arr("befit", 2));
-//    return  data;
-//    }
-//    private  void getSelectedCategoryData(String categoryName){
-//
-//        Log.d("getSelectedCategoryData", categoryName);
-//        if(categoryName == "" ){
-////            adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, getCosmicBodies());
-//        } else {
-//            getProducts(categoryName);
-//        }
-//    }
-
-    class arr{
-        private String name;
-        private int categoryID;
-
-        public String getName(){
-            return name;
-        }
-        public int getCategoryID(){
-            return categoryID;
-        }
-        public arr (String name, int categoryID){
-            this.name = name;
-            this.categoryID = categoryID;
-        }
+    boolean isPriceMinDelayPending = false;
+    Handler priceMinHandler = new Handler();
+    Runnable priceMinDelayedTask = new Runnable() {
         @Override
-        public String toString(){
-            return name;
-        }
-    }
+        public void run() {
+            // Check if a delay is still pending
+            if (isPriceMinDelayPending) {
+                // Perform the action you want after the specified delay
+                Log.d("tbPriceMin", "tbPriceMin.getText(): " + tbPriceMin.getText());
+                String q = tbPriceMin.getText().toString();
+                if (q.length() > 0){
+                    queryPriceMin = q;
+                    data.clear();
+                    getProducts();
+                }else {
+                    queryPriceMin = "";
 
+                }
+
+                // Reset the flag to indicate that the delay is completed
+                isPriceMinDelayPending = false;
+            }
+        }
+    };
+
+    Runnable priceMaxDelayedTask = new Runnable() {
+        @Override
+        public void run() {
+            // Check if a delay is still pending
+            if (isPriceMinDelayPending) {
+                // Perform the action you want after the specified delay
+                Log.d("tbPriceMax", "tbPriceMax.getText(): " + tbPriceMax.getText());
+                String q = tbPriceMax.getText().toString();
+                if (q.length() > 0){
+                    queryPriceMax = q;
+                    data.clear();
+                    getProducts();
+                }else {
+                    queryPriceMax = "";
+
+                }
+                // Reset the flag to indicate that the delay is completed
+                isPriceMinDelayPending = false;
+            }
+        }
+    };
 
     class Category {
         private String categoryID;
@@ -225,17 +225,22 @@ public class ProductListFragment extends Fragment  {
             Log.e("Error", "Failed to fetch : " + throwable.getMessage());
             return null;
         });
-        productRV = binding.rv;
 
-        Log.d("onViewCreated", data.size() +"");
+
+        productRV = binding.rv;
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
         productRV.setLayoutManager(gridLayoutManager);
+
+        // Adapter setup should be done here regardless of data being empty or not
         productListRVAdapter = new ProductListRVAdapter(data, new ProductListRVAdapter.OnItemClickListener() {
             @Override
             public void onItemClicked(ProductRVItemClass product) {
+                // Handle item click if needed
             }
         });
         productRV.setAdapter(productListRVAdapter);
+
+
 
     }
 
@@ -248,20 +253,28 @@ public class ProductListFragment extends Fragment  {
         cateSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener(){
             @Override
             public void onItemSelected(AdapterView<?> adapterView,View view, int position,long itemID){
+
                 if (position >= 0 && position < categories.size()){
-                    cateSpinner.setSelection(position);
-                    queryCategory = categories.get(position);
-                    Log.d("onItemSelected", queryCategory);
-                    if (queryCategory == "All"){
-                        queryCategory ="";
+//                    cateSpinner.setSelection(position);
+
+                    if (categories.get(Integer.parseInt(itemID +"")) != "All"){
+
+                        queryCategory =categories.get(position).toString();
+                        Log.d("onItemSelected", categories.get(Integer.parseInt(itemID +"")) +"");
+                        ArrayList<ProductRVItemClass> oldData = data;
+                        data.clear();
+                        getProducts();
+//                        handleSupportCheckData(oldData,data);
+
+//                        productListRVAdapter.notifyDataSetChanged();
                     }
                     else {
+                        queryCategory ="";
+                        data.clear();
+
                         getProducts();
-                        Log.d("onItemSelected", data.get(0).title + "");
-//                        productListRVAdapter.notifyDataSetChanged();
 
                     }
-
 
                 } else {
                     Toast.makeText(getActivity(), "Selected Category does not exist", Toast.LENGTH_SHORT).show();
@@ -279,25 +292,20 @@ public class ProductListFragment extends Fragment  {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position >= 0 && position < brands.size()){
                     queryBrand = brands.get(position);
-                    if (queryBrand == "All"){
-                        queryBrand ="";
-                    }else {
+                    if (brands.get(Integer.parseInt(id +"")) != "All"){
+
+                        queryBrand =brands.get(position).toString();
+                        data.clear();
                         getProducts();
-//                        productRV = binding.rv;
-//
-//
-//                        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
-//                        productRV.setLayoutManager(gridLayoutManager);
-//                        productListRVAdapter = new ProductListRVAdapter(data, new ProductListRVAdapter.OnItemClickListener() {
-//                            @Override
-//                            public void onItemClicked(ProductRVItemClass product) {
-//                            }
-//                        });
-//                        productRV.setAdapter(productListRVAdapter);
+//                        productListRVAdapter.notifyDataSetChanged();
                     }
+                    else {
+                        queryBrand ="";
+                        data.clear();
 
-                    brandSpinner.setSelection(position);
+                        getProducts();
 
+                    }
 
                 } else {
                     Toast.makeText(getActivity(), "Selected Brand does not exist", Toast.LENGTH_SHORT).show();
@@ -310,8 +318,66 @@ public class ProductListFragment extends Fragment  {
             }
         });
 
-//       GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
-//       productRV.setLayoutManager(gridLayoutManager);
+        tbPriceMax = binding.tbPriceMax;
+        tbPriceMin = binding.tbPriceMin;
+
+        tbPriceMin.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+                priceMinHandler.removeCallbacks(priceMinDelayedTask);
+
+                // Set the flag to indicate that a delay is now pending for tbPriceMin
+                isPriceMinDelayPending = true;
+
+                // Schedule a new delayed task for tbPriceMin
+                priceMinHandler.postDelayed(priceMinDelayedTask, 1500);
+
+            }
+
+
+
+        });
+
+        tbPriceMax.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+                priceMinHandler.removeCallbacks(priceMaxDelayedTask);
+
+                // Set the flag to indicate that a delay is now pending for tbPriceMin
+                isPriceMinDelayPending = true;
+
+                // Schedule a new delayed task for tbPriceMin
+                priceMinHandler.postDelayed(priceMaxDelayedTask, 1500);
+
+            }
+
+
+
+        });
+
+        Log.d("dataObj", "onResponse: " + data.toString());
+
+
 
 
     }
@@ -349,17 +415,28 @@ public class ProductListFragment extends Fragment  {
     }
 
     public void getProducts() {
-        String urlAPI = "http://"+constant.idAddress+"/api/v1/product/?brandID=2";
+        String urlAPI = "http://"+constant.idAddress+"/api/v1/product";
         Map<String, String> headers = new HashMap<>();
 
-        if (queryCategory != "" || queryCategory != null){
+        if (queryCategory != "" ){
             headers.put("CategoryName", queryCategory);
         }
-        if (queryBrand != "" || queryBrand != null) {
+        if (queryBrand != "" ) {
             headers.put("BrandName", queryBrand);
         }
+        if (queryPriceMin !=""  ){
 
+            headers.put("Price", "gte:"+queryPriceMin);
 
+        }
+        Log.d("queryPriceMax", (queryPriceMax != null ) +"");
+        if ( queryPriceMax != "" ){
+            headers.put("Price", "lt:"+queryPriceMax);
+        }
+        if (queryName!=""){
+            headers.put("Name", queryName);
+
+        }
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
                 new Response.Listener<String>() {
@@ -369,7 +446,9 @@ public class ProductListFragment extends Fragment  {
                             JSONObject dataObj = new JSONObject(response);
                             JSONArray dataArray = dataObj.getJSONArray("Data");
                             List<CompletableFuture<Void>> imageFutures = new ArrayList<>();
-
+                            if (dataArray.length() ==0){
+                                return;
+                            }
                             for (int i = 0; i < dataArray.length(); i++) {
                                 JSONObject productObj = dataArray.getJSONObject(i);
                                 String imgName = productObj.getString("Image");
@@ -378,6 +457,7 @@ public class ProductListFragment extends Fragment  {
                                 String rating = productObj.getString("Favorite");
                                 String description = productObj.getString("Description");
 
+
                                 // Create a CompletableFuture for each image retrieval task
                                 CompletableFuture<Void> imageFuture = CompletableFuture.runAsync(() -> {
                                     getProductImage(imgName, new ImageResponseCallback() {
@@ -385,18 +465,16 @@ public class ProductListFragment extends Fragment  {
                                         public void onImageReceived(Bitmap bitmap) {
                                             ProductRVItemClass product = new ProductRVItemClass(bitmap, title, price, rating, description);
                                             data.add(product);
-                                            productRV = binding.rv;
-                                            productListRVAdapter = new ProductListRVAdapter(data, new ProductListRVAdapter.OnItemClickListener() {
+
+                                            getActivity().runOnUiThread(new Runnable() {
                                                 @Override
-                                                public void onItemClicked(ProductRVItemClass product) {
+                                                public void run() {
+                                                    if (data.size() > 0){
+                                                        productListRVAdapter.notifyDataSetChanged();
+
+                                                    }
                                                 }
                                             });
-                                            productListRVAdapter.notifyDataSetChanged();
-
-//                                            GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 1);
-
-                                            productRV.setAdapter(productListRVAdapter);
-//                                            productRV.setLayoutManager(gridLayoutManager);
                                         }
 
                                         @Override
@@ -415,14 +493,7 @@ public class ProductListFragment extends Fragment  {
                             // Add a callback to update RecyclerView when all images are fetched
                             allImagesFuture.thenAccept(result -> {
                                 Log.v("list", data.toString());
-                                // Update the RecyclerView once all images are fetched
-//                                productRV = binding.rv;
-//                                productListRVAdapter = new ProductListRVAdapter(data, new ProductListRVAdapter.OnItemClickListener() {
-//                                    @Override
-//                                    public void onItemClicked(ProductRVItemClass product) {
-//                                    }
-//                                });
-                                productListRVAdapter.notifyDataSetChanged();
+
 
 
                             }).exceptionally(throwable -> {
@@ -522,7 +593,11 @@ public class ProductListFragment extends Fragment  {
         return future;
     }
 
-
+    public void handleSupportCheckData(ArrayList<ProductRVItemClass> oldData, ArrayList<ProductRVItemClass> newData){
+        if (newData.size() == 0){
+            data = oldData;
+        }
+    }
 
 
 
