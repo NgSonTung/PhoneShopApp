@@ -61,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
                     loadHeaderFragment(new HeaderPersonal());
                     loadFragment(new PersonalFragment());
 
+                } else if (item.getItemId()== R.id.itemMenuChatBot) {
+                    loadFragment(new ChatbotFragment());
                 }
                 return true;
             }
