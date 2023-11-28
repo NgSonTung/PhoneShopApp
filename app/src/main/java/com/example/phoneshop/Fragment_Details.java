@@ -14,24 +14,30 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.phoneshop.databinding.FragmentDetailsBinding;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 
 public class Fragment_Details extends Fragment {
 
@@ -75,6 +81,13 @@ public class Fragment_Details extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentDetailsBinding.inflate(inflater,container ,false);
+        Button buyNowButton = binding.btnDetailBuyNow;
+        buyNowButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                postRequestToBackend();
+            }
+        });
         return binding.getRoot();
     }
 
@@ -121,9 +134,10 @@ public class Fragment_Details extends Fragment {
     }
 
     public void getSubImgs(String productID) {
+
         String urlAPI = "http://" + Constant.idAddress + "/api/v1/subimg/product/" + productID;
         // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, urlAPI,
+        StringRequest stringRequest = new StringRequest(com.android.volley.Request.Method.GET, urlAPI,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -150,5 +164,42 @@ public class Fragment_Details extends Fragment {
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         queue.add(stringRequest);
     }
+    private void postRequestToBackend() {
+        // Create a new thread for the network request
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OkHttpClient client = new OkHttpClient();
+                MediaType MEDIA_TYPE = MediaType.parse("application/json");
+                String url = "http://localhost:8001/api/v1/cart/"; // Replace with your URL
+                String jsonBody = "{\"key\":\"value\"}"; // Replace with your JSON body
 
+                RequestBody body = RequestBody.create(jsonBody, MEDIA_TYPE);
+                Request request = new Request.Builder()
+                        .url(url)
+                        .post(body)
+                        .build();
+
+                try {
+                    okhttp3.Response response = client.newCall(request).execute();
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unexpected code " + response);
+                    }
+
+                    // Handle the response
+                    final String responseData = response.body().string();
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Update the UI with the response
+                            // For example, show a Toast or update a TextView
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    // Handle the error
+                }
+            }
+        }).start();
+    }
 }
