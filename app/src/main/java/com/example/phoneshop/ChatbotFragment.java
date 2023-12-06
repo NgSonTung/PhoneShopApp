@@ -1,64 +1,47 @@
 package com.example.phoneshop;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.webkit.WebSettings;
+import androidx.fragment.app.Fragment;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ChatbotFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ChatbotFragment extends Fragment {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     public ChatbotFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ChatbotFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ChatbotFragment newInstance(String param1, String param2) {
-        ChatbotFragment fragment = new ChatbotFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+    public static ChatbotFragment newInstance() {
+        return new ChatbotFragment();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_chatbot, container, false);
+        View view = inflater.inflate(R.layout.fragment_chatbot, container, false);
+
+        WebView webView = view.findViewById(R.id.webview);
+
+        // Clear the WebView cache
+        webView.clearCache(true);
+
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true); // Enable JavaScript
+        webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+        webSettings.setDomStorageEnabled(true); // Enable DOM storage
+        webView.setLayerType(View.LAYER_TYPE_HARDWARE, null); // Enable hardware acceleration
+
+        // Load the HTML file from the assets directory
+        try {
+            webView.loadUrl("https://neoprototype.ca/");
+        } catch (Exception e) {
+            e.printStackTrace(); // Log the exception
+            // Handle the exception or show an error message to the user
+        }
+
+        return view;
     }
 }
