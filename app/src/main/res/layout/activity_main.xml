@@ -29,40 +29,10 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-<!--                <fragment-->
-<!--                    android:id="@+id/homeFragment"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:name="com.example.phoneshop.FragmentHome" />-->
-
-
-<!--                <fragment-->
-<!--                    android:id="@+id/homeFragment"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:name="com.example.phoneshop.ProductListFragment" />-->
-
-<!--                <fragment-->
-<!--                    android:id="@+id/homeFragment"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:name="com.example.phoneshop.Fragment_Details" />-->
-
-<!--                <fragment-->
-<!--                    android:id="@+id/homeFragment"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:name="com.example.phoneshop.FragmentHome" />-->
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/layoutFragment"/>
-<!--                <fragment-->
-<!--                    android:id="@+id/homeFragment"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:name="com.example.phoneshop.PersonalFragment" />-->
+                <FrameLayout
+                    android:id="@+id/layoutFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
             </LinearLayout>
         </ScrollView>
 
@@ -99,7 +69,6 @@
                 app:layout_constraintStart_toStartOf="parent" />
         </LinearLayout>
 
+
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
