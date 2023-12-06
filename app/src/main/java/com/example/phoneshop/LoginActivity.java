@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -105,6 +106,7 @@ public class LoginActivity extends AppCompatActivity {
                                 String csrfToken = dataObject.getString("CsrfToken");
 
                                 int userID = dataObject.getJSONObject("User").getInt("UserID");
+                                Constant.setUserId(userID);
                                 String userName = dataObject.getJSONObject("User").getString("UserName");
                                 String email = dataObject.getJSONObject("User").getString("Email");
 
@@ -134,7 +136,7 @@ public class LoginActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-
+                        Log.d("TAG", error.toString());
                         Toast.makeText(LoginActivity.this, "LOGIN FAILED!" + error, Toast.LENGTH_SHORT).show();
                     }
                 });

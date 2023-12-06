@@ -27,6 +27,10 @@
         android:iconTint="#FFFFFF"
         android:iconTintMode="multiply"
         android:title="Cá nhân" />
+    <item
+        android:id="@+id/itemMenuChatBot"
+        android:icon="@drawable/bot"
+        android:title="AI" />
 
 
 </menu>
