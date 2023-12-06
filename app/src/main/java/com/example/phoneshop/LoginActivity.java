@@ -106,6 +106,7 @@ public class LoginActivity extends AppCompatActivity {
                                 String csrfToken = dataObject.getString("CsrfToken");
 
                                 int userID = dataObject.getJSONObject("User").getInt("UserID");
+                                Constant.setUserId(userID);
                                 String userName = dataObject.getJSONObject("User").getString("UserName");
                                 String email = dataObject.getJSONObject("User").getString("Email");
 

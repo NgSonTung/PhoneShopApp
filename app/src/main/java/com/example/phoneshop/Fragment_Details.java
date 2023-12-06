@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,7 +25,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.phoneshop.databinding.FragmentDetailsBinding;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,7 +33,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -40,7 +40,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 public class Fragment_Details extends Fragment {
-
+    private String productId;
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     ArrayList<String> imgList = new ArrayList<>();
@@ -58,7 +58,7 @@ public class Fragment_Details extends Fragment {
     TextView detailDescription;
     TextView detailTitle;
     TextView product_price;
-
+    EditText inputAmount;
     public Fragment_Details() {
         // Required empty public constructor
     }
@@ -82,10 +82,29 @@ public class Fragment_Details extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentDetailsBinding.inflate(inflater,container ,false);
         Button buyNowButton = binding.btnDetailBuyNow;
+        Bundle args = getArguments();
+
+        if (args != null) {
+            // Retrieve the product ID from the bundle
+             productId = args.getString("product_id");
+        }
         buyNowButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                postRequestToBackend();
+                getProductById(productId, new ProductCallback() {
+                    @Override
+                    public void onProductReceived(ProductItemClass product) {
+                        Log.d("TAG", "onProductReceived: "+ product.getName());
+                        addToCart(product);
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        // Handle the error here
+                    }
+                });
+
+
             }
         });
         return binding.getRoot();
@@ -96,7 +115,7 @@ public class Fragment_Details extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 //        productImgRV = binding.detailRVMain;
         subImgRV = binding.detailRVSub;
-
+        inputAmount = binding.detailInputAmount;
 
         subImgRVAdapter = new SubImgRVAdapter(imgList);
         subImgRVAdapter.notifyDataSetChanged();
@@ -130,6 +149,9 @@ public class Fragment_Details extends Fragment {
             // For example, you can display it in an ImageView:
 //            ImageView imageView = .findViewById(R.id.imageView);
 //            imageView.setImageBitmap(bitmap);
+
+            getOrderIdByUserId(Constant.getUserId() + "");
+
         }
     }
 
@@ -164,15 +186,44 @@ public class Fragment_Details extends Fragment {
         RequestQueue queue = Volley.newRequestQueue(getActivity());
         queue.add(stringRequest);
     }
-    private void postRequestToBackend() {
+    private void addToCart(ProductItemClass product) {
         // Create a new thread for the network request
         new Thread(new Runnable() {
             @Override
             public void run() {
                 OkHttpClient client = new OkHttpClient();
                 MediaType MEDIA_TYPE = MediaType.parse("application/json");
-                String url = "http://localhost:8001/api/v1/cart/"; // Replace with your URL
-                String jsonBody = "{\"key\":\"value\"}"; // Replace with your JSON body
+                String url = "http://"+Constant.idAddress+"/api/v1/order/product"; // Replace with your URL
+                // Manually construct the JSON body
+                String jsonBody = String.format(
+                        "{" +
+                                "\"ProductID\": %d, " +
+                                "\"Stock\": %d, " +
+                                "\"Name\": \"%s\", " +
+                                "\"Favorite\": %d, " +
+                                "\"Price\": \"%s\", " +
+                                "\"BrandID\": %d, " +
+                                "\"Image\": \"%s\", " +
+                                "\"Sale\": \"%s\", " +
+                                "\"Description\": \"%s\", " +
+                                "\"CreatedAt\": \"%s\", " +
+                                "\"Amount\": %d, " +
+                                "\"OrderID\": %d " +
+                                "}",
+                        product.getProductID(),
+                        product.getStock(),
+                        product.getName(),
+                        1, // Replace with actual favorite value if available
+                        product.getPrice(), // Assuming getPrice() returns a double
+                        product.getBrandID(),
+                        product.getImage(),
+                        "23%", // Assuming getSale() returns a String
+                        product.getDescription(),
+                        "2023-04-05T09:56:32.557Z", // Replace with actual creation date if available
+                        Integer.parseInt(inputAmount.getText().toString()), // Replace with actual amount if available
+                        Constant.getOrderId()
+                );
+
 
                 RequestBody body = RequestBody.create(jsonBody, MEDIA_TYPE);
                 Request request = new Request.Builder()
@@ -201,5 +252,225 @@ public class Fragment_Details extends Fragment {
                 }
             }
         }).start();
+    }
+
+    private void getProductById(final String paramValue,final ProductCallback callback) {
+        // Create a new thread for the network request
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OkHttpClient client = new OkHttpClient();
+
+                String url = "http://" + Constant.idAddress + "/api/v1/product/" + paramValue;
+
+                Request request = new Request.Builder()
+                        .url(url)
+                        .get()
+                        .build();
+
+                try {
+                    okhttp3.Response response = client.newCall(request).execute();
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unexpected code " + response);
+                    }
+
+                    // Handle the response
+                    final String responseData = response.body().string();
+                    // Now parse the string with Gson
+                    Gson gson = new Gson();
+                    final ResponseProductClass responseObj = gson.fromJson(responseData, ResponseProductClass.class);
+
+                    final ProductItemClass product = responseObj.getData();
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            callback.onProductReceived(product);
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    callback.onError(e.getMessage());
+                }
+            }
+        }).start();
+    }
+    public interface ProductCallback {
+        void onProductReceived(ProductItemClass product);
+        void onError(String error);
+    }
+
+
+
+    private void getOrderIdByUserId(final String paramValue) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OkHttpClient client = new OkHttpClient();
+                String url = "http://" + Constant.idAddress + "/api/v1/order/user/" + paramValue;
+
+                Request request = new Request.Builder()
+                        .url(url)
+                        .get()
+                        .build();
+
+                try {
+                    okhttp3.Response response = client.newCall(request).execute();
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unexpected code " + response);
+                    }
+
+                    // Handle the response
+                    final String responseData = response.body().string();
+                    JSONObject jsonObject = new JSONObject(responseData);
+                    JSONObject dataObject = jsonObject.getJSONObject("Data");
+                    JSONArray ordersArray = dataObject.getJSONArray("Data");
+
+                    ArrayList<OrderRVItemClass> orders = new ArrayList<>();
+                    for (int i = 0; i < ordersArray.length(); i++) {
+                        JSONObject orderObject = ordersArray.getJSONObject(i);
+                        int statusId = orderObject.getInt("StatusID");
+
+                        if (statusId == 1) { // Check if StatusID is 1
+                            Gson gson = new Gson();
+                            Order order = gson.fromJson(orderObject.toString(), Order.class);
+                            Log.d("Ddddddddddddd", "run: " + order.OrderID);
+                            Constant.setOrderId(order.OrderID);
+                        }
+                    }
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Update UI with the orders list
+                            // For example, show order details in a ListView or RecyclerView
+                        }
+                    });
+                } catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                    // Handle the error
+                }
+            }
+        }).start();
+    }
+    public class Order {
+        private int OrderID;
+        private int UserID;
+        private String CustomerName;
+        private String Address;
+        private String email;
+        private String Phone;
+        private int PaymentID;
+        private int StatusID;
+        private String CreatedAt;
+        private String StatusName;
+        private String PaymentName;
+        private int TotalAmount;
+        private double TotalPrice;
+
+        public int getOrderID() {
+            return OrderID;
+        }
+
+        public void setOrderID(int orderID) {
+            OrderID = orderID;
+        }
+
+        public int getUserID() {
+            return UserID;
+        }
+
+        public void setUserID(int userID) {
+            UserID = userID;
+        }
+
+        public String getCustomerName() {
+            return CustomerName;
+        }
+
+        public void setCustomerName(String customerName) {
+            CustomerName = customerName;
+        }
+
+        public String getAddress() {
+            return Address;
+        }
+
+        public void setAddress(String address) {
+            Address = address;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getPhone() {
+            return Phone;
+        }
+
+        public void setPhone(String phone) {
+            Phone = phone;
+        }
+
+        public int getPaymentID() {
+            return PaymentID;
+        }
+
+        public void setPaymentID(int paymentID) {
+            PaymentID = paymentID;
+        }
+
+        public int getStatusID() {
+            return StatusID;
+        }
+
+        public void setStatusID(int statusID) {
+            StatusID = statusID;
+        }
+
+        public String getCreatedAt() {
+            return CreatedAt;
+        }
+
+        public void setCreatedAt(String createdAt) {
+            CreatedAt = createdAt;
+        }
+
+        public String getStatusName() {
+            return StatusName;
+        }
+
+        public void setStatusName(String statusName) {
+            StatusName = statusName;
+        }
+
+        public String getPaymentName() {
+            return PaymentName;
+        }
+
+        public void setPaymentName(String paymentName) {
+            PaymentName = paymentName;
+        }
+
+        public int getTotalAmount() {
+            return TotalAmount;
+        }
+
+        public void setTotalAmount(int totalAmount) {
+            TotalAmount = totalAmount;
+        }
+
+        public double getTotalPrice() {
+            return TotalPrice;
+        }
+
+        public void setTotalPrice(double totalPrice) {
+            TotalPrice = totalPrice;
+        }
+// Add getters and setters
     }
 }
