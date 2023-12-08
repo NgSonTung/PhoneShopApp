@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,11 +33,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -45,11 +51,11 @@ import java.util.concurrent.CompletableFuture;
  */
 public class CartFragment extends Fragment {
     FragmentOrderBinding binding;
-
-    FavoriteProductsRVAdapter orderRVAdapter;
+    Button btnThanhToan;
+    CartAdapter orderRVAdapter;
     RecyclerView orderRV;
     String cartID;
-    ArrayList<FavoriteProductRVItemClass> data = new ArrayList<>();
+    ArrayList<CartClass> data = new ArrayList<>();
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -96,6 +102,23 @@ public class CartFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentOrderBinding.inflate(inflater, container, false);
+        Button btnThanhToan = binding.btnThanhToan;
+        btnThanhToan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (data.size() > 0){
+                    Log.v("ccccc", "onClick: ");
+                    payment();
+                    FragmentActivity activity = getActivity();
+                    if (activity != null) {
+                        FragmentManager fm = activity.getSupportFragmentManager();
+                        FragmentTransaction ft = fm.beginTransaction();
+                        ft.replace(R.id.layoutFragment, new FragmentHome());
+                        ft.commit();
+                    }
+                }
+            }
+        });
         return binding.getRoot();
     }
 
@@ -123,7 +146,7 @@ public class CartFragment extends Fragment {
             }
         });
 
-
+        btnThanhToan = binding.btnThanhToan;
     }
 
     interface OrderIdCallback {
@@ -175,25 +198,25 @@ public class CartFragment extends Fragment {
                         try {
                             JSONObject resObj = new JSONObject(response);
                             JSONArray dataArray = resObj.getJSONArray("Data");
-                            Log.v("CCCCCCCCCCCCCCC", dataArray.toString());
                             List<CompletableFuture<Void>> imageFutures = new ArrayList<>();
 
                             for (int i = 0; i < dataArray.length(); i++) {
                                 JSONObject productObj = dataArray.getJSONObject(i);
                                 String imgName = productObj.getString("Image");
                                 String name = productObj.getString("Name");
+                                String amount = productObj.getString("Amount");
                                 String price = productObj.getString("Price");
 
                                 CompletableFuture<Void> imageFuture = CompletableFuture.runAsync(() -> {
                                     getProductImage(imgName, new ImageResponseCallback() {
                                         @Override
                                         public void onImageReceived(Bitmap bitmap) {
-                                            FavoriteProductRVItemClass product = new FavoriteProductRVItemClass(bitmap, name, price);
+                                            CartClass product = new CartClass(bitmap, name, price,amount);
                                             data.add(product);
                                             orderRV = binding.orderFrag;
-                                            orderRVAdapter = new FavoriteProductsRVAdapter(data, new FavoriteProductsRVAdapter.OnItemClickListener() {
+                                            orderRVAdapter = new CartAdapter(data, new CartAdapter.OnItemClickListener() {
                                                 @Override
-                                                public void onItemClicked(FavoriteProductRVItemClass product) {
+                                                public void onItemClicked(CartClass product) {
 //                                                    openDetailFragment(product);
                                                 }
                                             });
@@ -256,7 +279,6 @@ public class CartFragment extends Fragment {
                                 String orderID = productObj.getString("OrderID");
                                 String statusID = productObj.getString("StatusID");
                                 if (statusID.equals("1")) {
-
                                     cartID = orderID;
                                     Log.v("SET CART NEEEE", cartID);
                                     callback.onOrderIdReceived(cartID);
@@ -284,6 +306,53 @@ public class CartFragment extends Fragment {
         // Get the UserID from SharedPreferences, default to -1 if not found
         int userId = sharedPreferences.getInt("userID", 0);
         return userId;
+    }
+    private void payment() {
+        // Create a new thread for the network request
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OkHttpClient client = new OkHttpClient();
+                MediaType MEDIA_TYPE = MediaType.parse("application/json");
+                String url = "http://"+Constant.idAddress+"/api/v1/payment/handlerPayment"; // Replace with your URL
+                // Manually construct the JSON body
+                String jsonBody = String.format(
+                        "{" +
+                                "\"TypeOfPayment\": %s, " +
+                                "\"OrderID\": %s "+
+                                "}",
+                        "\"COD\"",
+                        Constant.getOrderId()
+                );
+                Log.d("jsonBody", "run: " + jsonBody);
+                RequestBody body = RequestBody.create(jsonBody, MEDIA_TYPE);
+                okhttp3.Request request = new okhttp3.Request.Builder()
+                        .url(url)
+                        .post(body)
+                        .build();
+
+                try {
+                    okhttp3.Response response = client.newCall(request).execute();
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unexpected code " + response);
+                    }
+
+                    // Handle the response
+                    final String responseData = response.body().string();
+                    Log.d("payment", responseData);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Update the UI with the response
+                            // For example, show a Toast or update a TextView
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    // Handle the error
+                }
+            }
+        }).start();
     }
 
 }

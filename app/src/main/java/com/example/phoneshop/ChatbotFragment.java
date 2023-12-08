@@ -36,7 +36,7 @@ public class ChatbotFragment extends Fragment {
 
         // Load the HTML file from the assets directory
         try {
-            webView.loadUrl("https://neoprototype.ca/");
+            webView.loadUrl("file:///android_asset/index.html");
         } catch (Exception e) {
             e.printStackTrace(); // Log the exception
             // Handle the exception or show an error message to the user

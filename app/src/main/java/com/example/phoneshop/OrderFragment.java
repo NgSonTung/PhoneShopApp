@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,7 +30,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -82,6 +88,7 @@ public class OrderFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
     }
 
     @Override
@@ -112,7 +119,6 @@ public class OrderFragment extends Fragment {
         orderRV.setAdapter(orderRVAdapter);
         orderRV.setLayoutManager(gridLayoutManager);
 
-        Log.v("CCCCCCCCCCCCCCCC", "CCCCCCCCCCCCCCCC");
         getOrders();
 
 
@@ -165,5 +171,8 @@ public class OrderFragment extends Fragment {
         int userId = sharedPreferences.getInt("userID", 0);
         return userId;
     }
+
+
+
 
 }

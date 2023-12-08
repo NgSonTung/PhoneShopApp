@@ -302,7 +302,7 @@ public class Fragment_Details extends Fragment {
 
 
 
-    private void getOrderIdByUserId(final String paramValue) {
+    public void getOrderIdByUserId(final String paramValue) {
         new Thread(new Runnable() {
             @Override
             public void run() {

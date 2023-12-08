@@ -34,12 +34,14 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.phoneshop.databinding.FragmentHomeBinding;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +49,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
+import okhttp3.OkHttpClient;
 
 public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemClickListener {
     FragmentHomeBinding binding;
@@ -136,6 +140,9 @@ public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemCli
         gridView.setAdapter(gridAdapter);
         gridView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         getCategories();
+//        getOrderIdByUserId("1");
+
+        getOrderIdByUserId(Constant.getUserId() +"");
     }
 
     private void addControls() {
@@ -405,5 +412,175 @@ public class FragmentHome extends Fragment implements ProductRVAdapter.OnItemCli
         transaction.addToBackStack(null);
         transaction.commit();
     }
+    public void getOrderIdByUserId(final String paramValue) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                OkHttpClient client = new OkHttpClient();
+                String url = "http://" + Constant.idAddress + "/api/v1/order/user/" + paramValue;
 
+                okhttp3.Request request = new okhttp3.Request.Builder()
+                        .url(url)
+                        .get()
+                        .build();
+
+                try {
+                    okhttp3.Response response = client.newCall(request).execute();
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unexpected code " + response);
+                    }
+
+                    // Handle the response
+                    final String responseData = response.body().string();
+                    JSONObject jsonObject = new JSONObject(responseData);
+                    JSONObject dataObject = jsonObject.getJSONObject("Data");
+                    JSONArray ordersArray = dataObject.getJSONArray("Data");
+
+                    ArrayList<OrderRVItemClass> orders = new ArrayList<>();
+                    for (int i = 0; i < ordersArray.length(); i++) {
+                        JSONObject orderObject = ordersArray.getJSONObject(i);
+                        int statusId = orderObject.getInt("StatusID");
+
+                        if (statusId == 1) { // Check if StatusID is 1
+                            Gson gson = new Gson();
+                            FragmentHome.Order order = gson.fromJson(orderObject.toString(), FragmentHome.Order.class);
+                            Log.d("Ddddddddddddd", "run: " + order.OrderID);
+                            Constant.setOrderId(order.OrderID);
+                        }
+                    }
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Update UI with the orders list
+                            // For example, show order details in a ListView or RecyclerView
+                        }
+                    });
+                } catch (IOException | JSONException e) {
+                    e.printStackTrace();
+                    // Handle the error
+                }
+            }
+        }).start();
+    }
+    public class Order {
+        private int OrderID;
+        private int UserID;
+        private String CustomerName;
+        private String Address;
+        private String email;
+        private String Phone;
+        private int PaymentID;
+        private int StatusID;
+        private String CreatedAt;
+        private String StatusName;
+        private String PaymentName;
+        private int TotalAmount;
+        private double TotalPrice;
+
+        public int getOrderID() {
+            return OrderID;
+        }
+
+        public void setOrderID(int orderID) {
+            OrderID = orderID;
+        }
+
+        public int getUserID() {
+            return UserID;
+        }
+
+        public void setUserID(int userID) {
+            UserID = userID;
+        }
+
+        public String getCustomerName() {
+            return CustomerName;
+        }
+
+        public void setCustomerName(String customerName) {
+            CustomerName = customerName;
+        }
+
+        public String getAddress() {
+            return Address;
+        }
+
+        public void setAddress(String address) {
+            Address = address;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getPhone() {
+            return Phone;
+        }
+
+        public void setPhone(String phone) {
+            Phone = phone;
+        }
+
+        public int getPaymentID() {
+            return PaymentID;
+        }
+
+        public void setPaymentID(int paymentID) {
+            PaymentID = paymentID;
+        }
+
+        public int getStatusID() {
+            return StatusID;
+        }
+
+        public void setStatusID(int statusID) {
+            StatusID = statusID;
+        }
+
+        public String getCreatedAt() {
+            return CreatedAt;
+        }
+
+        public void setCreatedAt(String createdAt) {
+            CreatedAt = createdAt;
+        }
+
+        public String getStatusName() {
+            return StatusName;
+        }
+
+        public void setStatusName(String statusName) {
+            StatusName = statusName;
+        }
+
+        public String getPaymentName() {
+            return PaymentName;
+        }
+
+        public void setPaymentName(String paymentName) {
+            PaymentName = paymentName;
+        }
+
+        public int getTotalAmount() {
+            return TotalAmount;
+        }
+
+        public void setTotalAmount(int totalAmount) {
+            TotalAmount = totalAmount;
+        }
+
+        public double getTotalPrice() {
+            return TotalPrice;
+        }
+
+        public void setTotalPrice(double totalPrice) {
+            TotalPrice = totalPrice;
+        }
+// Add getters and setters
+    }
 }

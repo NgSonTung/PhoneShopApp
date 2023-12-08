@@ -79,6 +79,7 @@ public class HeaderFragment extends Fragment {
                 fragmentTransaction.commit();
             }
         });
+
         return binding.getRoot();
     }
 }

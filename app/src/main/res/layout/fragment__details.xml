@@ -112,10 +112,12 @@
                 android:text="Đặt Ngay"
                 android:textColor="@color/white"
                 android:textSize="20dp"
+                android:visibility="gone"
                 app:icon="@drawable/baseline_add_24"
                 app:iconGravity="textStart"
                 app:iconPadding="10dp"
-                app:iconSize="26dp" />
+                app:iconSize="26dp"
+                tools:visibility="gone" />
 
             <Button
                 android:id="@+id/btnDetailAddToCart"
